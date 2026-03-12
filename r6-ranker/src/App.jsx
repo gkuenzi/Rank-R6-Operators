@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './App.css'
-import OperatorVote from './assets/components/OperatorVote'
+import OperatorVote from './components/OperatorVote'
 
 function App() {
 
