@@ -35,8 +35,13 @@ function operatorVote() {
             const randomIndexA = Math.floor(Math.random() * attackers.length)
             setOperatorA(attackers[randomIndexA])
 
-            const randomIndexB = Math.floor(Math.random() * attackers.length)
-            setOperatorB(attackers[randomIndexB])
+            while (true) {
+              const randomIndexB = Math.floor(Math.random() * attackers.length)
+              if (randomIndexB !== randomIndexA) {
+                setOperatorB(attackers[randomIndexB])
+                break;
+              }
+            }
           }}
           >{operatorA}
           </button>
@@ -44,8 +49,13 @@ function operatorVote() {
             const randomIndexA = Math.floor(Math.random() * attackers.length)
             setOperatorA(attackers[randomIndexA])
 
-            const randomIndexB = Math.floor(Math.random() * attackers.length)
-            setOperatorB(attackers[randomIndexB])
+            while (true) {
+              const randomIndexB = Math.floor(Math.random() * attackers.length)
+              if (randomIndexB !== randomIndexA) {
+                setOperatorB(attackers[randomIndexB])
+                break;
+              }
+            }
           }}
           >{operatorB}
           </button>

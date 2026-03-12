@@ -20,6 +20,7 @@ By 3/27
     - choose attacker or defender
     - takes you to vote screen on click
 - On result leaderboard, make the portraits clickable, and send user to r6 site description for operator
+    - Clickable "?" icons on voting screen for people unfamiliar with operator
 
 By 3/31
 - Aesthetic Polish
