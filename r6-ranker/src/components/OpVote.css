@@ -60,6 +60,14 @@ button {
   border: 2px solid rgb(252, 78, 62);
 }
 
+button:hover {
+  border-color: rgb(255, 167, 159);
+}
+
+button:focus {
+  outline: none;
+}
+
 .opButtons {
   display: flex;
   gap: 70px;
