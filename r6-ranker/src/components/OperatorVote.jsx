@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import './OpVote.css'
 import attackersData from '../../../Attackers.txt'
 import defendersData from '../../../Defenders.txt'
+import mapImage from '../assets/chalet-basement-blueprint-1.jpg'
 
 function operatorVote() {
   const [operatorA, setOperatorA] = useState('operator A')
@@ -29,6 +30,8 @@ function operatorVote() {
   return (
     <div>
       <div className="mainContainer">
+        <img src={mapImage} alt="Chalet Basement Blueprint" className="mapImage" />
+        <div className="userContainer">
         <h1>Situation/Site</h1>
         <div className="opButtons">
           <button onClick={() => {
@@ -59,6 +62,7 @@ function operatorVote() {
           }}
           >{operatorB}
           </button>
+        </div>
         </div>
       </div>
     </div>

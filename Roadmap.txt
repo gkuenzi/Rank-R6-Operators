@@ -1,19 +1,19 @@
 Deadlines (Finish by 3/31)
 
-By 3/13
-- Set up react
-- Set up basic OperatorVote Component
-- Create an array of operators that can possess their own values
+By 3/15
+* Set up react
+* Set up basic OperatorVote Component
+* Create an array of operators that can possess their own values
 - Randomize Buttons and situation on click
 
-By 3/20
+By 3/22
 - Create array for sites and situations
 - Basic design for final leaderboard
 - Basic design for start screen
 - Gather assets (operator portraits, etc.)
 - Functional operator point system
 
-By 3/27
+By 3/29
 - Confidence Bar for voting screen
 - Functional leaderboard result
 - Functional start screen
