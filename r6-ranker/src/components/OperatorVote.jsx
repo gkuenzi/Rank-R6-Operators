@@ -2,7 +2,27 @@ import { useState, useEffect } from 'react'
 import './OpVote.css'
 import attackersData from '../../../Attackers.txt'
 import defendersData from '../../../Defenders.txt'
-import mapImage from '../assets/chalet-basement-blueprint-1.jpg'
+import mapImage from '../assets/placeholder-cover-photo.jpg'
+import r6Logo from '../assets/simple-r6-logo.png'
+
+const maps = [
+  'bank',
+  'border',
+  'chalet',
+  'clubhouse',
+  'coastline',
+  'consulate',
+  'emerald',
+  'fortress',
+  'kafe',
+  'lair',
+  'nighthaven',
+  'oregon',
+  'outback',
+  'skyscraper',
+  'themepark',
+  'villa',
+]
 
 function operatorVote() {
   const [operatorA, setOperatorA] = useState('operator A')
@@ -27,8 +47,16 @@ function operatorVote() {
 
   }, [])
 
+  useEffect(() => {
+
+  },)
+
   return (
-    <div>
+    <div className="operatorVote">
+      <div className="titleConnector">
+        <img src={r6Logo} alt="Chalet Basement Blueprint" className="titleLogo" />
+        <h1>Operators-Ranked</h1>
+      </div>
       <div className="mainContainer">
         <img src={mapImage} alt="Chalet Basement Blueprint" className="mapImage" />
         <div className="userContainer">

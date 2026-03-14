@@ -26,3 +26,8 @@ By 3/31
 - Aesthetic Polish
 - Bug Fixing
 - Go Public (Release)
+
+
+
+# Initial vote screen should ask the user to choose attackers or defenders, with the prompt being the
+situation/site and the Attack and Defense being the operator buttons
