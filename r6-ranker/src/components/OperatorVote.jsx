@@ -32,37 +32,37 @@ function operatorVote() {
       <div className="mainContainer">
         <img src={mapImage} alt="Chalet Basement Blueprint" className="mapImage" />
         <div className="userContainer">
-        <h1>Situation/Site</h1>
-        <div className="opButtons">
-          <button onClick={() => {
-            const randomIndexA = Math.floor(Math.random() * attackers.length)
-            setOperatorA(attackers[randomIndexA])
+          <h1>Situation/Site</h1>
+          <div className="opButtons">
+            <button onClick={() => {
+              const randomIndexA = Math.floor(Math.random() * attackers.length)
+              setOperatorA(attackers[randomIndexA])
 
-            while (true) {
-              const randomIndexB = Math.floor(Math.random() * attackers.length)
-              if (randomIndexB !== randomIndexA) {
-                setOperatorB(attackers[randomIndexB])
-                break;
+              while (true) {
+                const randomIndexB = Math.floor(Math.random() * attackers.length)
+                if (randomIndexB !== randomIndexA) {
+                  setOperatorB(attackers[randomIndexB])
+                  break;
+                }
               }
-            }
-          }}
-          >{operatorA}
-          </button>
-          <button onClick={() => {
-            const randomIndexA = Math.floor(Math.random() * attackers.length)
-            setOperatorA(attackers[randomIndexA])
+            }}
+            >{operatorA}
+            </button>
+            <button onClick={() => {
+              const randomIndexA = Math.floor(Math.random() * attackers.length)
+              setOperatorA(attackers[randomIndexA])
 
-            while (true) {
-              const randomIndexB = Math.floor(Math.random() * attackers.length)
-              if (randomIndexB !== randomIndexA) {
-                setOperatorB(attackers[randomIndexB])
-                break;
+              while (true) {
+                const randomIndexB = Math.floor(Math.random() * attackers.length)
+                if (randomIndexB !== randomIndexA) {
+                  setOperatorB(attackers[randomIndexB])
+                  break;
+                }
               }
-            }
-          }}
-          >{operatorB}
-          </button>
-        </div>
+            }}
+            >{operatorB}
+            </button>
+          </div>
         </div>
       </div>
     </div>
