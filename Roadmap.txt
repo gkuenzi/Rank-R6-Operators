@@ -9,17 +9,18 @@ By 3/15
     * Situation/Map
 
 By 3/22
+- Add map label under image for when situations are just sites
 - Create array for sites and situations
 - Basic design for final leaderboard
-- Basic design for start screen
-- Gather assets (operator portraits, etc.)
+- Basic design for start screen (Probably won't exist)
+- Gather assets (operator portraits, situation images, etc.)
 - Functional operator point system
 
 By 3/29
 - Confidence Bar for voting screen
 - Functional leaderboard result
-- Functional start screen
-    - choose attacker or defender
+- Functional start screen (Probably won't exist)
+    * choose attacker or defender
     - takes you to vote screen on click
 - On result leaderboard, make the portraits clickable, and send user to r6 site description for operator
     - Clickable "?" icons on voting screen for people unfamiliar with operator
@@ -31,5 +32,5 @@ By 3/31
 
 
 
-# Initial vote screen should ask the user to choose attackers or defenders, with the prompt being the
+* Initial vote screen should ask the user to choose attackers or defenders, with the prompt being the
 situation/site and the Attack and Defense being the operator buttons
