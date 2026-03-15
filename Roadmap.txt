@@ -4,9 +4,9 @@ By 3/15
 * Set up react
 * Set up basic OperatorVote Component
 * Create an array of operators that can possess their own values
-- Randomize on click
+* Randomize on click
     * Buttons 
-    Situation/Map
+    * Situation/Map
 
 By 3/22
 - Create array for sites and situations
