@@ -22,13 +22,29 @@ const maps = [
   'skyscraper',
   'themepark',
   'villa',
-]
+];
 
-function operatorVote() {
-  const [operatorA, setOperatorA] = useState('operator A')
-  const [operatorB, setOperatorB] = useState('operator B')
+function opButton(operatorSide, setA, setB) {
+  const randomIndexA = Math.floor(Math.random() * operatorSide.length)
+  setA(operatorSide[randomIndexA])
+
+  while (true) {
+    const randomIndexB = Math.floor(Math.random() * operatorSide.length)
+    if (randomIndexB !== randomIndexA) {
+      setB(operatorSide[randomIndexB])
+      break;
+    }
+  }
+}
+
+export default function operatorVote() {
+  const [operatorA, setOperatorA] = useState('Attack')
+  const [operatorB, setOperatorB] = useState('Defense')
   const [attackers, setAttackers] = useState([])
   const [defenders, setDefenders] = useState([])
+
+  const atk = true; const def = false;
+  const [team, setTeam] = useState();
 
   useEffect(() => {
     fetch(attackersData)
@@ -60,32 +76,25 @@ function operatorVote() {
       <div className="mainContainer">
         <img src={mapImage} alt="Chalet Basement Blueprint" className="mapImage" />
         <div className="userContainer">
-          <h1>Situation/Site</h1>
+          <h1>Choose a Side</h1>
           <div className="opButtons">
             <button onClick={() => {
-              const randomIndexA = Math.floor(Math.random() * attackers.length)
-              setOperatorA(attackers[randomIndexA])
-
-              while (true) {
-                const randomIndexB = Math.floor(Math.random() * attackers.length)
-                if (randomIndexB !== randomIndexA) {
-                  setOperatorB(attackers[randomIndexB])
-                  break;
-                }
+              if (team === atk) opButton(attackers, setOperatorA, setOperatorB)
+              else if (team === def) opButton(defenders, setOperatorA, setOperatorB)
+              else {
+                setTeam(atk)
+                opButton(attackers, setOperatorA, setOperatorB)
               }
+
             }}
             >{operatorA}
             </button>
             <button onClick={() => {
-              const randomIndexA = Math.floor(Math.random() * attackers.length)
-              setOperatorA(attackers[randomIndexA])
-
-              while (true) {
-                const randomIndexB = Math.floor(Math.random() * attackers.length)
-                if (randomIndexB !== randomIndexA) {
-                  setOperatorB(attackers[randomIndexB])
-                  break;
-                }
+              if (team === atk) opButton(attackers, setOperatorA, setOperatorB)
+              else if (team === def) opButton(defenders, setOperatorA, setOperatorB)
+              else {
+                setTeam(def)
+                opButton(defenders, setOperatorA, setOperatorB)
               }
             }}
             >{operatorB}
@@ -96,5 +105,3 @@ function operatorVote() {
     </div>
   )
 }
-
-export default operatorVote
