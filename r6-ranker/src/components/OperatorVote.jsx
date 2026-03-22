@@ -59,17 +59,30 @@ const mapImages = {
   villa: villaCover,
 };
 
-function opButton(operatorSide, setA, setB, setSit, setMapImage) {
-  const randomIndexA = Math.floor(Math.random() * operatorSide.length)
-  setA(operatorSide[randomIndexA])
-
-  while (true) {
-    const randomIndexB = Math.floor(Math.random() * operatorSide.length)
-    if (randomIndexB !== randomIndexA) {
-      setB(operatorSide[randomIndexB])
-      break;
+function createOperatorIndex(operatorNames, role) {
+  return operatorNames.reduce((acc, name, index) => {
+    const id = `${role}-${index + 1}`
+    acc[name] = {
+      id,
+      name,
+      role,
+      score: 0,
     }
+    return acc
+  }, {})
+}
+
+function opButton(operatorSideArray, setA, setB, setSit, setMapImage) {
+  if (!Array.isArray(operatorSideArray) || operatorSideArray.length < 2) {
+    return
   }
+
+  const randomIndexA = Math.floor(Math.random() * operatorSideArray.length)
+  const randomIndexB = Math.floor(Math.random() * (operatorSideArray.length - 1))
+  const indexB = randomIndexB >= randomIndexA ? randomIndexB + 1 : randomIndexB
+
+  setA(operatorSideArray[randomIndexA])
+  setB(operatorSideArray[indexB])
 
   const randMap = Math.floor(Math.random() * maps.length)
   const selectedMap = maps[randMap]
@@ -78,10 +91,12 @@ function opButton(operatorSide, setA, setB, setSit, setMapImage) {
 }
 
 export default function operatorVote() {
-  const [operatorA, setOperatorA] = useState('Attack')
-  const [operatorB, setOperatorB] = useState('Defense')
-  const [attackers, setAttackers] = useState([])
-  const [defenders, setDefenders] = useState([])
+  const [operatorA, setOperatorA] = useState({ id: '', name: 'Attack', role: '', score: 0 })
+  const [operatorB, setOperatorB] = useState({ id: '', name: 'Defense', role: '', score: 0 })
+  const [attackers, setAttackers] = useState({})
+  const [defenders, setDefenders] = useState({})
+  const [attackerList, setAttackerList] = useState([])
+  const [defenderList, setDefenderList] = useState([])
   const [situation, setSituation] = useState('Choose your Team')
   const [currentMapImage, setCurrentMapImage] = useState(placeholderCover)
 
@@ -92,54 +107,55 @@ export default function operatorVote() {
     fetch(attackersData)
       .then(response => response.text())
       .then(text => {
-        const attackersList = text.split('\n').filter(line => line.trim() !== '')
-        setAttackers(attackersList)
+        const attackersListFromFile = text.split('\n').filter(line => line.trim() !== '')
+        const attackersMap = createOperatorIndex(attackersListFromFile, 'attacker')
+        const attackersValues = Object.values(attackersMap)
+        setAttackers(attackersMap)
+        setAttackerList(attackersValues)
       })
 
     fetch(defendersData)
       .then(response => response.text())
       .then(text => {
-        const defendersList = text.split('\n').filter(line => line.trim() !== '')
-        setDefenders(defendersList)
+        const defendersListFromFile = text.split('\n').filter(line => line.trim() !== '')
+        const defendersMap = createOperatorIndex(defendersListFromFile, 'defender')
+        const defendersValues = Object.values(defendersMap)
+        setDefenders(defendersMap)
+        setDefenderList(defendersValues)
       })
 
   }, [])
 
-  useEffect(() => {
-
-  },)
-
   return (
     <div className="operatorVote">
       <div className="titleConnector">
-        <img src={r6Logo} alt="Chalet Basement Blueprint" className="titleLogo" />
-        <h1>Operators-Ranked</h1>
+        <img src={r6Logo} alt="Rainbow Six Siege Logo" className="titleLogo" />
+        <h1>Operators:Ranked</h1>
       </div>
       <div className="mainContainer">
         <img src={currentMapImage} alt="Chalet Basement Blueprint" className="mapImage" />
         <div className="userContainer">
-        <h1>{situation}</h1>
+          <h1>{situation}</h1>
           <div className="opButtons">
             <button onClick={() => {
-              if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
-              else if (team === def) opButton(defenders, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
+              if (team === atk) opButton(attackerList, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
+              else if (team === def) opButton(defenderList, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
               else {
                 setTeam(atk)
-                opButton(attackers, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
+                opButton(attackerList, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
               }
-
             }}
-            >{operatorA}
+            >{operatorA?.name || operatorA}
             </button>
             <button onClick={() => {
-              if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
-              else if (team === def) opButton(defenders, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
+              if (team === atk) opButton(attackerList, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
+              else if (team === def) opButton(defenderList, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
               else {
                 setTeam(def)
-                opButton(defenders, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
+                opButton(defenderList, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
               }
             }}
-            >{operatorB}
+            >{operatorB?.name || operatorB}
             </button>
           </div>
         </div>
