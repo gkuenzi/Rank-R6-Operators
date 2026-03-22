@@ -88,6 +88,8 @@ export default function operatorVote() {
   const atk = true; const def = false;
   const [team, setTeam] = useState();
 
+  const attackerIDs = []
+
   useEffect(() => {
     fetch(attackersData)
       .then(response => response.text())
@@ -95,6 +97,22 @@ export default function operatorVote() {
         const attackersList = text.split('\n').filter(line => line.trim() !== '')
         setAttackers(attackersList)
       })
+
+    for (i = 0; i < attackersList.length(); i++) {
+      atkID = {
+        name: attackersList[i],
+        team: "attack",
+        scores: {
+          general: 1000, //Overall Score
+          entry: 1000,  //Soft and Hard Breaching
+          fragging: 1000, //Getting kills and gain map control
+          vert: 1000, //Vertical Play potential
+          intel: 1000,  //Gaining information
+          roam_clear: 1000, //taking out roamers
+          support: 1000  //help the team secure the victory or get a kill
+        }
+      }
+    }
 
     fetch(defendersData)
       .then(response => response.text())
@@ -118,7 +136,7 @@ export default function operatorVote() {
       <div className="mainContainer">
         <img src={currentMapImage} alt="Chalet Basement Blueprint" className="mapImage" />
         <div className="userContainer">
-        <h1>{situation}</h1>
+          <h1>{situation}</h1>
           <div className="opButtons">
             <button onClick={() => {
               if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setSituation, setCurrentMapImage)
