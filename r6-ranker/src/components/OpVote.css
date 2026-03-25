@@ -46,6 +46,10 @@ body {
   border-radius: 5px;
 }
 
+.imageContainer {
+  text-align: center;
+}
+
 .userContainer {
   display: flex;
   justify-content: center;
