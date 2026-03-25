@@ -59,6 +59,29 @@ const mapImages = {
   villa: villaCover,
 };
 
+function generateIDs(operatorList, team) {
+  let operatorIDs = []
+    for (let i = 0; i < operatorList.length; i++) {
+      const id = {
+        name: operatorList[i],
+        team: team,
+        scores: {
+          general: 1000, //Overall Score
+          entry: 1000,  //Soft and Hard Breaching
+          fragging: 1000, //Getting kills and gain map control
+          vert: 1000, //Vertical Play potential
+          intel: 1000,  //Gaining information
+          roam_clear: 1000, //taking out roamers
+          support: 1000  //help the team secure the victory or get a kill
+        }
+      }
+      operatorIDs.push(id)
+    }
+    return operatorIDs;
+}
+
+
+
 function opButton(operatorSide, setA, setB, setSit, setMapImage) {
   const randomIndexA = Math.floor(Math.random() * operatorSide.length)
   setA(operatorSide[randomIndexA])
@@ -82,13 +105,13 @@ export default function operatorVote() {
   const [operatorB, setOperatorB] = useState('Defense')
   const [attackers, setAttackers] = useState([])
   const [defenders, setDefenders] = useState([])
+  const [attackersIDs, setAttackersIDs] = useState([])
+  const [defendersIDs, setDefendersIDs] = useState([])
   const [situation, setSituation] = useState('Choose your Team')
   const [currentMapImage, setCurrentMapImage] = useState(placeholderCover)
 
   const atk = true; const def = false;
   const [team, setTeam] = useState();
-
-  const attackerIDs = []
 
   useEffect(() => {
     fetch(attackersData)
@@ -96,29 +119,15 @@ export default function operatorVote() {
       .then(text => {
         const attackersList = text.split('\n').filter(line => line.trim() !== '')
         setAttackers(attackersList)
+        setAttackersIDs(generateIDs(attackersList,'attack'))
       })
-
-    for (i = 0; i < attackersList.length(); i++) {
-      atkID = {
-        name: attackersList[i],
-        team: "attack",
-        scores: {
-          general: 1000, //Overall Score
-          entry: 1000,  //Soft and Hard Breaching
-          fragging: 1000, //Getting kills and gain map control
-          vert: 1000, //Vertical Play potential
-          intel: 1000,  //Gaining information
-          roam_clear: 1000, //taking out roamers
-          support: 1000  //help the team secure the victory or get a kill
-        }
-      }
-    }
 
     fetch(defendersData)
       .then(response => response.text())
       .then(text => {
         const defendersList = text.split('\n').filter(line => line.trim() !== '')
         setDefenders(defendersList)
+        setDefendersIDs(generateIDs(defendersList, 'defense'))
       })
 
   }, [])
