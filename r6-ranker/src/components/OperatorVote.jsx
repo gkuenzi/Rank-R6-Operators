@@ -65,14 +65,28 @@ function generateIDs(operatorList, team) {
       const id = {
         name: operatorList[i],
         team: team,
-        scores: {
+        scores: team == 'attacker' ? {
           general: 1000, //Overall Score
+          //Support
+          support: 1000,  //help the team secure the victory or get a kill
           entry: 1000,  //Soft and Hard Breaching
+          //Fragging
           fragging: 1000, //Getting kills and gain map control
-          vert: 1000, //Vertical Play potential
-          intel: 1000,  //Gaining information
           roam_clear: 1000, //taking out roamers
-          support: 1000  //help the team secure the victory or get a kill
+          //Intel
+          intel: 1000,  //Gaining information
+          vert: 1000 //Vertical play potential
+        } : {
+          general: 1000, //Overall Score
+          //Support
+          support: 1000,  //help the team secure the victory or get a kill
+          sight_control: 1000,  //Holding down sight
+          //Fragging
+          fragging: 1000, //Getting kills and gain map control
+          roaming: 1000, //Get kills off sight and waste time
+          //Intel
+          intel: 1000,  //Gaining information
+          vert: 1000, //Vertical denial potential
         }
       }
       operatorIDs.push(id)
@@ -82,7 +96,7 @@ function generateIDs(operatorList, team) {
 
 
 
-function opButton(operatorSide, setA, setB, setCaption, setMapImage) {
+function opButton(operatorSide, setA, setB, setCaption, setMapImage, setSit) {
   const randomIndexA = Math.floor(Math.random() * operatorSide.length)
   setA(operatorSide[randomIndexA])
 
@@ -152,22 +166,22 @@ export default function operatorVote() {
           <h1>{situation}</h1>
           <div className="opButtons">
             <button onClick={() => {
-              if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage)
-              else if (team === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage)
+              if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation)
+              else if (team === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation)
               else {
                 setTeam(atk)
-                opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage)
+                opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation)
               }
 
             }}
             >{operatorA}
             </button>
             <button onClick={() => {
-              if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage)
-              else if (team === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage)
+              if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation)
+              else if (team === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation)
               else {
                 setTeam(def)
-                opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage)
+                opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation)
               }
             }}
             >{operatorB}
