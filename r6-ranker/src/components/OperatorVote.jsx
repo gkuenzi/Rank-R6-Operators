@@ -65,7 +65,7 @@ function generateIDs(operatorList, team) {
       const id = {
         name: operatorList[i],
         team: team,
-        scores: team == 'attacker' ? {
+        scores: team === 'attack' ? {
           general: 1000, //Overall Score
           //Support
           support: 1000,  //help the team secure the victory or get a kill
