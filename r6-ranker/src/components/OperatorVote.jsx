@@ -13,6 +13,7 @@ import consulateCover from '../assets/consulate-cover-photo.avif'
 import emeraldCover from '../assets/emerald-cover-photo.avif'
 import fortressCover from '../assets/fortress-cover-photo.avif'
 import kafeCover from '../assets/kafe-cover-photo.avif'
+import kanalCover from '../assets/kanal-cover-photo.avif'
 import lairCover from '../assets/lair-cover-photo.avif'
 import nighthavenCover from '../assets/nighthaven-cover-photo.avif'
 import oregonCover from '../assets/oregon-cover-photo.avif'
@@ -50,6 +51,7 @@ const mapImages = {
   emerald: emeraldCover,
   fortress: fortressCover,
   kafe: kafeCover,
+  kanal: kanalCover,
   lair: lairCover,
   nighthaven: nighthavenCover,
   oregon: oregonCover,

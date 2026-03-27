@@ -1,0 +1,101 @@
+# Bank
+Lockers / CCTV (Basement)
+CEO Office / Executive Lounge (2F)
+Open Area / Staff Room (1F)
+Tellers / Archives (1F)
+
+# Border
+Armory Lockers / Archives (2F)
+Ventilation / Workshop (1F)
+Bathroom / Tellers (1F)
+Customs / Supply (2F)
+
+# Chalet
+Wine Cellar / Snowmobile Garage (Basement)
+Master Bedroom / Office (2F)
+Kitchen / Dining (1F)
+Bar / Gaming (2F)
+
+# Clubhouse
+Church / Arsenal (Basement)
+CCTV / Cash Room (2F)
+Bedroom / Gym (2F)
+Bar / Stage (1F)
+
+# Coastline
+Hookah Lounge / Billiards (2F)
+Penthouse / Theater (2F)
+Kitchen / Service (1F)
+Blue Bar / Sunrise (1F)
+
+# Consulate
+CEO Office / Meeting Room (2F)
+Garage / Cafeteria (Basement)
+Lobby / Press Room (1F)
+Archives / Tellers (Split: 1F + Basement)
+
+# Emerald Plains
+Office / Meeting (2F)
+Kitchen / Dining (1F)
+Bar / Lounge (1F)
+Library / Study (2F)
+
+# Fortress
+Dormitory / Sleeping Quarters (2F)
+Command Center / Server Room (2F)
+Kitchen / Dining Hall (1F)
+Laundry Room / Supply Room (1F)
+
+# Kafe Dostoyevsky
+Bar / Cocktail Lounge (3F)
+Reading Room / Fireplace Hall (2F)
+Kitchen / Service (1F)
+Bakery / Prep (1F)
+
+# Kanal
+Server Room / Radar (2F)
+Coast Guard / Lounge (1F)
+Security / Map Room (1F)
+Kayaks / Control (2F)
+
+# Lair
+Command Center / Briefing (2F)
+Lab / Operations (1F)
+Storage / Bunker (Basement)
+Dorms / Security (2F)
+
+# Nighthaven Labs
+Control Room / Server (2F)
+Kitchen / Cafeteria (1F)
+Tank / Storage (Basement)
+Assembly / Reactor (2F)
+
+# Oregon
+Laundry / Supply (Basement)
+Kids Dorms / Dorms (2F)
+Kitchen / Dining (1F)
+Meeting Hall / Kitchen (1F)
+
+# Outback
+Party Room / Office (2F)
+Laundry / Games Room (1F)
+Compressor / Gear Store (1F)
+Nature Room / Bushranger (2F)
+
+# Skyscraper
+Tea Room / Karaoke (2F)
+Exhibition / Office (2F)
+Kitchen / BBQ (1F)
+Bedroom / Bathroom (Split: 1F + 2F)
+
+# Theme Park
+Initiation Room / Office (2F)
+Armory / Throne Room (1F)
+Lab / Storage (1F)
+Bunk / Daycare (2F)
+
+# Villa
+Aviator / Games (2F)
+Living Room / Library (1F)
+Trophy / Statuary (2F)
+Wine Cellar / Memorial (Basement)
