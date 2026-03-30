@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import './OpVote.css'
 import attackersData from '../../../Attackers.txt'
 import defendersData from '../../../Defenders.txt'
+import mapSites from '../../../Map_sites.txt'
 import r6Logo from '../assets/simple-r6-logo.png'
 import placeholderCover from '../assets/placeholder-cover-photo.jpg'
 import bankCover from '../assets/bank-cover-photo.avif'
@@ -63,37 +64,68 @@ const mapImages = {
 
 function generateIDs(operatorList, team) {
   let operatorIDs = []
-    for (let i = 0; i < operatorList.length; i++) {
-      const id = {
-        name: operatorList[i],
-        team: team,
-        scores: team === 'attack' ? {
-          general: 1000, //Overall Score
-          //Support
-          support: 1000,  //help the team secure the victory or get a kill
-          entry: 1000,  //Soft and Hard Breaching
-          //Fragging
-          fragging: 1000, //Getting kills and gain map control
-          roam_clear: 1000, //taking out roamers
-          //Intel
-          intel: 1000,  //Gaining information
-          vert: 1000 //Vertical play potential
-        } : {
-          general: 1000, //Overall Score
-          //Support
-          support: 1000,  //help the team secure the victory or get a kill
-          sight_control: 1000,  //Holding down sight
-          //Fragging
-          fragging: 1000, //Getting kills and gain map control
-          roaming: 1000, //Get kills off sight and waste time
-          //Intel
-          intel: 1000,  //Gaining information
-          vert: 1000, //Vertical denial potential
-        }
+  for (let i = 0; i < operatorList.length; i++) {
+    const id = {
+      name: operatorList[i],
+      team: team,
+      scores: team === 'attack' ? {
+        general: 1000, //Overall Score
+        //Support
+        support: 1000,  //help the team secure the victory or get a kill
+        entry: 1000,  //Soft and Hard Breaching
+        //Fragging
+        fragging: 1000, //Getting kills and gain map control
+        roam_clear: 1000, //taking out roamers
+        //Intel
+        intel: 1000,  //Gaining information
+        vert: 1000 //Vertical play potential
+      } : {
+        general: 1000, //Overall Score
+        //Support
+        support: 1000,  //help the team secure the victory or get a kill
+        sight_control: 1000,  //Holding down sight
+        //Fragging
+        fragging: 1000, //Getting kills and gain map control
+        roaming: 1000, //Get kills off sight and waste time
+        //Intel
+        intel: 1000,  //Gaining information
+        vert: 1000, //Vertical denial potential
       }
-      operatorIDs.push(id)
     }
-    return operatorIDs;
+    operatorIDs.push(id)
+  }
+  return operatorIDs;
+}
+
+function parseMaps(lines, index = 0, maps = [], currentMap = null) {  //Resursive Function to find all map sites from Map_sites.txt
+  // base case
+  if (index >= lines.length) return maps;
+
+  const line = lines[index];
+
+  // ignore empty or space-starting lines
+  if (!line || line[0] === " ") {
+    return parseMaps(lines, index + 1, maps, currentMap);
+  }
+
+  // new map
+  if (line[0] === "#") {
+    const newMap = {
+      name: line.slice(1).trim(),
+      sites: []
+    };
+
+    maps.push(newMap);
+
+    return parseMaps(lines, index + 1, maps, newMap);
+  }
+
+  // otherwise it's a site
+  if (currentMap) {
+    currentMap.sites.push(line.trim());
+  }
+
+  return parseMaps(lines, index + 1, maps, currentMap);
 }
 
 
@@ -136,7 +168,7 @@ export default function operatorVote() {
       .then(text => {
         const attackersList = text.split('\n').filter(line => line.trim() !== '')
         setAttackers(attackersList)
-        setAttackersIDs(generateIDs(attackersList,'attack'))
+        setAttackersIDs(generateIDs(attackersList, 'attack'))
       })
 
     fetch(defendersData)
@@ -146,6 +178,14 @@ export default function operatorVote() {
         setDefenders(defendersList)
         setDefendersIDs(generateIDs(defendersList, 'defense'))
       })
+
+    fetch(mapSites)
+      .then(res => res.text())
+      .then(text => {
+        const lines = text.split("\n");
+        const maps = parseMaps(lines);
+        console.log(maps);
+      });
 
   }, [])
 
@@ -161,8 +201,8 @@ export default function operatorVote() {
       </div>
       <div className="mainContainer">
         <div className="imageContainer">
-        <img src={currentMapImage} alt="Chalet Basement Blueprint" className="mapImage" />
-        <h2>{imageCaption}</h2>
+          <img src={currentMapImage} alt="Chalet Basement Blueprint" className="mapImage" />
+          <h2>{imageCaption}</h2>
         </div>
         <div className="userContainer">
           <h1>{situation}</h1>
