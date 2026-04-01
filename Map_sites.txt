@@ -1,101 +1,92 @@
-# Bank
-Lockers / CCTV (Basement)
+# bank
 CEO Office / Executive Lounge (2F)
 Open Area / Staff Room (1F)
-Tellers / Archives (1F)
+Lockers / CCTV (Basement)
 
-# Border
+# border
 Armory Lockers / Archives (2F)
 Ventilation / Workshop (1F)
 Bathroom / Tellers (1F)
-Customs / Supply (2F)
 
-# Chalet
-Wine Cellar / Snowmobile Garage (Basement)
+# chalet
 Master Bedroom / Office (2F)
 Kitchen / Dining (1F)
-Bar / Gaming (2F)
+Bar / Gaming (1F)
+Wine Cellar / Snowmobile Garage (Basement)
 
-# Clubhouse
-Church / Arsenal (Basement)
+# clubhouse
 CCTV / Cash Room (2F)
 Bedroom / Gym (2F)
-Bar / Stage (1F)
+Church / Arsenal (Basement)
 
-# Coastline
+# coastline
 Hookah Lounge / Billiards (2F)
 Penthouse / Theater (2F)
 Kitchen / Service (1F)
-Blue Bar / Sunrise (1F)
 
-# Consulate
+# consulate
 CEO Office / Meeting Room (2F)
+Exposition / Piano Room (1F)
 Garage / Cafeteria (Basement)
-Lobby / Press Room (1F)
-Archives / Tellers (Split: 1F + Basement)
 
-# Emerald Plains
-Office / Meeting (2F)
+# emerald
+Private Gallery / Meeting (2F)
+Administration / CEO Office (2F)
 Kitchen / Dining (1F)
-Bar / Lounge (1F)
-Library / Study (2F)
 
-# Fortress
+# fortress
 Dormitory / Sleeping Quarters (2F)
 Command Center / Server Room (2F)
 Kitchen / Dining Hall (1F)
 Laundry Room / Supply Room (1F)
 
-# Kafe Dostoyevsky
+# kafe
 Bar / Cocktail Lounge (3F)
 Reading Room / Fireplace Hall (2F)
-Kitchen / Service (1F)
-Bakery / Prep (1F)
+Reading Room / Mining Room (2F)
+Kitchen Service / Kitchen Cooking (1F)
 
-# Kanal
+# kanal
 Server Room / Radar (2F)
 Coast Guard / Lounge (1F)
 Security / Map Room (1F)
-Kayaks / Control (2F)
+Kayaks / Supply Room (Basement)
 
-# Lair
-Command Center / Briefing (2F)
-Lab / Operations (1F)
-Storage / Bunker (Basement)
-Dorms / Security (2F)
+# lair
+Master Office / R6 Room (2F)
+Bunks / Briefing (1F)
+Weapon Maintenance / Armory (1F)
+Lab Support / Lab (Basement)
 
-# Nighthaven Labs
-Control Room / Server (2F)
+# nighthaven
+Comand Center / Servers (2F)
 Kitchen / Cafeteria (1F)
-Tank / Storage (Basement)
-Assembly / Reactor (2F)
+Assembly / Tank (Basement)
 
-# Oregon
-Laundry / Supply (Basement)
-Kids Dorms / Dorms (2F)
+# oregon
+Kids' Dorms / Dorms Main Hall (2F)
 Kitchen / Dining (1F)
 Meeting Hall / Kitchen (1F)
+Laundry / Supply (Basement)
 
-# Outback
+# outback
+Laundry / Piano Room (2F)
 Party Room / Office (2F)
-Laundry / Games Room (1F)
-Compressor / Gear Store (1F)
-Nature Room / Bushranger (2F)
+Green Bedroom / Red Bedroom (1F)
 
-# Skyscraper
-Tea Room / Karaoke (2F)
+# skyscraper
+Karaoke / Tea Room (2F)
 Exhibition / Office (2F)
-Kitchen / BBQ (1F)
-Bedroom / Bathroom (Split: 1F + 2F)
+BBQ / Kitchen (1F)
+Bedroom / Bathroom (1F)
 
-# Theme Park
+# themepark
 Initiation Room / Office (2F)
-Armory / Throne Room (1F)
-Lab / Storage (1F)
 Bunk / Daycare (2F)
+Armory / Throne Room (1F)
 
-# Villa
+# villa
 Aviator / Games (2F)
-Living Room / Library (1F)
 Trophy / Statuary (2F)
-Wine Cellar / Memorial (Basement)
+Living Room / Library (1F)
+Dining Room / Kitchen (1F)

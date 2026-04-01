@@ -58,6 +58,7 @@ body {
   max-height: 80vh;
   overflow: auto;
   padding: 30px;
+  text-align: center;
 }
 
 button {

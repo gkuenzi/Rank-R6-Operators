@@ -100,37 +100,42 @@ function generateIDs(operatorList, team) {
 function parseMaps(lines, index = 0, maps = [], currentMap = null) {  //Resursive Function to find all map sites from Map_sites.txt
   // base case
   if (index >= lines.length) return maps;
-
   const line = lines[index];
-
   // ignore empty or space-starting lines
   if (!line || line[0] === " ") {
     return parseMaps(lines, index + 1, maps, currentMap);
   }
-
   // new map
   if (line[0] === "#") {
     const newMap = {
       name: line.slice(1).trim(),
       sites: []
     };
-
     maps.push(newMap);
-
     return parseMaps(lines, index + 1, maps, newMap);
   }
 
   // otherwise it's a site
   if (currentMap) {
     currentMap.sites.push(line.trim());
+    // console.log(currentMap)
   }
-
   return parseMaps(lines, index + 1, maps, currentMap);
 }
 
 
+function getRandomSite(map) {
+  console.log("map", map)
+  if (!map || !map.sites || map.sites.length === 0) {
+    return 'ERROR'; // or throw an error if you prefer
+  }
+  const randomIndex = Math.floor(Math.random() * map.sites.length);
+  return map.sites[randomIndex];
+}
 
-function opButton(operatorSide, setA, setB, setCaption, setMapImage, setSit) {
+
+
+function opButton(operatorSide, setA, setB, setCaption, setMapImage, setSit, mapDict) {
   const randomIndexA = Math.floor(Math.random() * operatorSide.length)
   setA(operatorSide[randomIndexA])
 
@@ -141,11 +146,11 @@ function opButton(operatorSide, setA, setB, setCaption, setMapImage, setSit) {
       break;
     }
   }
-
   const randMap = Math.floor(Math.random() * maps.length)
   const selectedMap = maps[randMap]
   setCaption(selectedMap.charAt(0).toUpperCase() + selectedMap.slice(1))
   setMapImage(mapImages[selectedMap])
+  setSit(getRandomSite(mapDict.find(item => item.name === selectedMap)))
 }
 
 export default function operatorVote() {
@@ -158,6 +163,7 @@ export default function operatorVote() {
   const [situation, setSituation] = useState('Choose your Team')
   const [imageCaption, setImageCaption] = useState('“Tactical combat at its finest.”')
   const [currentMapImage, setCurrentMapImage] = useState(placeholderCover)
+  const [mapDictionary, setMapDictionary] = useState([])
 
   const atk = true; const def = false;
   const [team, setTeam] = useState();
@@ -183,8 +189,7 @@ export default function operatorVote() {
       .then(res => res.text())
       .then(text => {
         const lines = text.split("\n");
-        const maps = parseMaps(lines);
-        console.log(maps);
+        setMapDictionary(parseMaps(lines));
       });
 
   }, [])
@@ -208,22 +213,22 @@ export default function operatorVote() {
           <h1>{situation}</h1>
           <div className="opButtons">
             <button onClick={() => {
-              if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation)
-              else if (team === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation)
+              if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
+              else if (team === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary )
               else {
                 setTeam(atk)
-                opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation)
+                opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
               }
 
             }}
             >{operatorA}
             </button>
             <button onClick={() => {
-              if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation)
-              else if (team === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation)
+              if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
+              else if (team === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
               else {
                 setTeam(def)
-                opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation)
+                opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
               }
             }}
             >{operatorB}
