@@ -1,0 +1,26 @@
+body {
+  margin: 0;
+  height: 100vh;
+  background-image: url('./assets/smoke-screen-backdrop.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.nav-button {
+  /* Add your custom height and width here */
+  height: 40px;
+  width: 150px;
+  /* Other styles */
+  background-color: rgb(252, 78, 62);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.nav-button:hover {
+  background-color: rgb(255, 167, 159);
+}

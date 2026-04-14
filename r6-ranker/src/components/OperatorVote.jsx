@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react'
 import './OpVote.css'
-import attackersData from '../../../Attackers.txt'
-import defendersData from '../../../Defenders.txt'
-import mapSites from '../../../Map_sites.txt'
 import r6Logo from '../assets/simple-r6-logo.png'
 import placeholderCover from '../assets/placeholder-cover-photo.jpg'
 import bankCover from '../assets/bank-cover-photo.avif'
@@ -153,50 +150,16 @@ function opButton(operatorSide, setA, setB, setCaption, setMapImage, setSit, map
   setSit(getRandomSite(mapDict.find(item => item.name === selectedMap)))
 }
 
-export default function operatorVote() {
+export default function operatorVote({ attackersIDs, defendersIDs, mapDictionary, selectedTeam, setSelectedTeam, view, setView }) {
   const [operatorA, setOperatorA] = useState('Attack')
   const [operatorB, setOperatorB] = useState('Defense')
-  const [attackers, setAttackers] = useState([])
-  const [defenders, setDefenders] = useState([])
-  const [attackersIDs, setAttackersIDs] = useState([])
-  const [defendersIDs, setDefendersIDs] = useState([])
+  const attackers = attackersIDs.map(op => op.name)
+  const defenders = defendersIDs.map(op => op.name)
   const [situation, setSituation] = useState('Choose your Team')
   const [imageCaption, setImageCaption] = useState('“Tactical combat at its finest.”')
   const [currentMapImage, setCurrentMapImage] = useState(placeholderCover)
-  const [mapDictionary, setMapDictionary] = useState([])
 
-  const atk = true; const def = false;
-  const [team, setTeam] = useState();
-
-  useEffect(() => {
-    fetch(attackersData)
-      .then(response => response.text())
-      .then(text => {
-        const attackersList = text.split('\n').filter(line => line.trim() !== '')
-        setAttackers(attackersList)
-        setAttackersIDs(generateIDs(attackersList, 'attack'))
-      })
-
-    fetch(defendersData)
-      .then(response => response.text())
-      .then(text => {
-        const defendersList = text.split('\n').filter(line => line.trim() !== '')
-        setDefenders(defendersList)
-        setDefendersIDs(generateIDs(defendersList, 'defense'))
-      })
-
-    fetch(mapSites)
-      .then(res => res.text())
-      .then(text => {
-        const lines = text.split("\n");
-        setMapDictionary(parseMaps(lines));
-      });
-
-  }, [])
-
-  useEffect(() => {
-
-  },)
+  const atk = 'attack'; const def = 'defense';
 
   return (
     <div className="operatorVote">
@@ -213,10 +176,10 @@ export default function operatorVote() {
           <h1>{situation}</h1>
           <div className="opButtons">
             <button onClick={() => {
-              if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
-              else if (team === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary )
+              if (selectedTeam === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
+              else if (selectedTeam === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary )
               else {
-                setTeam(atk)
+                setSelectedTeam(atk)
                 opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
               }
 
@@ -224,10 +187,10 @@ export default function operatorVote() {
             >{operatorA}
             </button>
             <button onClick={() => {
-              if (team === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
-              else if (team === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
+              if (selectedTeam === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
+              else if (selectedTeam === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
               else {
-                setTeam(def)
+                setSelectedTeam(def)
                 opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
               }
             }}
@@ -236,6 +199,11 @@ export default function operatorVote() {
           </div>
         </div>
       </div>
+      {selectedTeam ? (
+        <div style={{ textAlign: 'center', margin: '20px' }}>
+          <button className="nav-button" onClick={() => setView('results')}>See Results</button>
+        </div>
+      ) : null}
     </div>
   )
 }
