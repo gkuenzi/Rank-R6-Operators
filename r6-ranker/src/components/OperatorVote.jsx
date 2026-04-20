@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import './OpVote.css'
 import r6Logo from '../assets/simple-r6-logo.png'
+import solidsnake from '../assets/operator-portraits/solidsnake.avif'
 import placeholderCover from '../assets/placeholder-cover-photo.jpg'
 import bankCover from '../assets/bank-cover-photo.avif'
 import borderCover from '../assets/border-cover-photo.avif'
@@ -83,19 +84,15 @@ function getTieGroups(operators) {
   return Object.values(grouped).filter(group => group.length > 1);
 }
 
-function calculateConfidence(operators, clicks) {
+function calculateConfidence(operators) {
   if (!operators || operators.length === 0) return 0;
 
-  const scores = operators.map(op => op.scores.general);
-  const max = Math.max(...scores);
-  const min = Math.min(...scores);
-  const spread = max - min;
-  const spreadScore = Math.min(50, (spread / 20) * 50);
-  const clickScore = Math.min(40, clicks * 3);
-  const tieCount = getTieGroups(operators).length;
-  const tiePenalty = Math.min(20, tieCount * 5);
-
-  return Math.max(0, Math.min(100, Math.round(spreadScore + clickScore - tiePenalty)));
+  // Count unique general scores - this is the only indicator of confidence
+  const uniqueScores = new Set(operators.map(op => op.scores.general)).size;
+  const uniquenessRatio = uniqueScores / operators.length;
+  
+  // Scale to 0-100% based purely on uniqueness of general scores
+  return Math.round(uniquenessRatio * 100);
 }
 
 export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary, selectedTeam, setSelectedTeam, setView, setAttackersIDs, setDefendersIDs }) {
@@ -107,7 +104,7 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
   const [imageCaption, setImageCaption] = useState('“Tactical combat at its finest.”')
   const [currentMapImage, setCurrentMapImage] = useState(placeholderCover)
   const [currentSituation, setCurrentSituation] = useState(null)
-  const [clickCount, setClickCount] = useState(0)
+  const [recentPairs, setRecentPairs] = useState([])
 
   const scale = situationScale();
 
@@ -140,22 +137,71 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
     const operators = team === 'attack' ? attackers : defenders;
     if (!operators || operators.length < 2) return;
 
-    const tiedGroups = getTieGroups(team === 'attack' ? attackersIDs : defendersIDs);
+    const operatorsList = team === 'attack' ? attackersIDs : defendersIDs;
+    const tiedGroups = getTieGroups(operatorsList);
+    
+    // Calculate current confidence to determine tie prioritization probability
+    const currentConfidence = calculateConfidence(operatorsList) / 100;
+    // As confidence increases (more differentiation), increase probability of prioritizing ties
+    // Formula: 30% at 0% confidence, ramping up to 95% at 100% confidence
+    const tiePrioritizationChance = 0.3 + (currentConfidence * 0.65);
+    
     let firstOperator;
     let secondOperator;
+    let attempts = 0;
+    const maxAttempts = 50;
 
-    if (tiedGroups.length > 0) {
-      const tieGroup = tiedGroups[Math.floor(Math.random() * tiedGroups.length)];
-      firstOperator = tieGroup[0].name;
-      secondOperator = tieGroup[1].name;
-    } else {
-      const randomIndexA = Math.floor(Math.random() * operators.length);
-      firstOperator = operators[randomIndexA];
-      let randomIndexB;
+    // Function to check if a pair was recently used
+    const isRecentPair = (op1, op2) => {
+      const pair = [op1, op2].sort().join('-');
+      return recentPairs.includes(pair);
+    };
+
+    // Function to get two random operators, avoiding recent pairs
+    const getRandomPair = () => {
+      let op1, op2;
       do {
-        randomIndexB = Math.floor(Math.random() * operators.length);
-      } while (randomIndexB === randomIndexA);
-      secondOperator = operators[randomIndexB];
+        const idx1 = Math.floor(Math.random() * operators.length);
+        let idx2;
+        do {
+          idx2 = Math.floor(Math.random() * operators.length);
+        } while (idx2 === idx1);
+        op1 = operators[idx1];
+        op2 = operators[idx2];
+        attempts++;
+      } while (isRecentPair(op1, op2) && attempts < maxAttempts);
+      return [op1, op2];
+    };
+
+    // Prioritize ties more as confidence increases
+    const prioritizeTies = tiedGroups.length > 0 && Math.random() < tiePrioritizationChance;
+
+    if (prioritizeTies) {
+      // Pick from a random tie group and select two random operators from it
+      const tieGroup = tiedGroups[Math.floor(Math.random() * tiedGroups.length)];
+      
+      // If tie group has only 2 operators, use them both
+      if (tieGroup.length === 2) {
+        firstOperator = tieGroup[0].name;
+        secondOperator = tieGroup[1].name;
+      } else {
+        // Pick two random distinct operators from the tie group
+        const idx1 = Math.floor(Math.random() * tieGroup.length);
+        let idx2;
+        do {
+          idx2 = Math.floor(Math.random() * tieGroup.length);
+        } while (idx2 === idx1);
+        firstOperator = tieGroup[idx1].name;
+        secondOperator = tieGroup[idx2].name;
+      }
+
+      // If this tie pair was recent, fall back to random
+      if (isRecentPair(firstOperator, secondOperator)) {
+        [firstOperator, secondOperator] = getRandomPair();
+      }
+    } else {
+      // Pick two completely random operators, avoiding recent pairs
+      [firstOperator, secondOperator] = getRandomPair();
     }
 
     setOperatorA(firstOperator);
@@ -193,7 +239,14 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
     applyDelta(chosen, currentSituation, true);
     applyDelta(other, currentSituation, false);
     setOps([...ops]);
-    setClickCount(prev => prev + 1);
+    
+    // Add current pair to recent pairs to avoid immediate repetition
+    const currentPair = [operatorA, operatorB].sort().join('-');
+    setRecentPairs(prev => {
+      const newPairs = [currentPair, ...prev.filter(p => p !== currentPair)].slice(0, 10);
+      return newPairs;
+    });
+    
     generateNewVote(selectedTeam);
   };
 
@@ -211,42 +264,48 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
         <div className="userContainer">
           <h1>{situation}</h1>
           <div className="opButtons">
-            <button onClick={() => {
-              if (selectedTeam === atk) {
-                vote(operatorA);
-              } else if (selectedTeam === def) {
-                vote(operatorA);
-              } else {
-                if (attackersIDs.length === 0) return;
-                setSelectedTeam(atk);
-                generateNewVote(atk);
-              }
-            }}
-            >{operatorA}
-            </button>
-            <button onClick={() => {
-              console.log('Button B clicked, selectedTeam:', selectedTeam, 'defendersIDs.length:', defendersIDs.length);
-              if (selectedTeam === atk) {
-                vote(operatorB);
-              } else if (selectedTeam === def) {
-                vote(operatorB);
-              } else {
-                if (defendersIDs.length === 0) return;
-                setSelectedTeam(def);
-                generateNewVote(def);
-              }
-            }}
-            >{operatorB}
-            </button>
+            <div className="operatorCard">
+              <button className="operatorButton" onClick={() => {
+                if (selectedTeam === atk) {
+                  vote(operatorA);
+                } else if (selectedTeam === def) {
+                  vote(operatorA);
+                } else {
+                  if (attackersIDs.length === 0) return;
+                  setSelectedTeam(atk);
+                  generateNewVote(atk);
+                }
+              }}>
+                <img src={solidsnake} alt="Operator" />
+              </button>
+              <p className="operatorName">{operatorA}</p>
+            </div>
+            <div className="operatorCard">
+              <button className="operatorButton" onClick={() => {
+                console.log('Button B clicked, selectedTeam:', selectedTeam, 'defendersIDs.length:', defendersIDs.length);
+                if (selectedTeam === atk) {
+                  vote(operatorB);
+                } else if (selectedTeam === def) {
+                  vote(operatorB);
+                } else {
+                  if (defendersIDs.length === 0) return;
+                  setSelectedTeam(def);
+                  generateNewVote(def);
+                }
+              }}>
+                <img src={solidsnake} alt="Operator" />
+              </button>
+              <p className="operatorName">{operatorB}</p>
+            </div>
           </div>
         </div>
       </div>
       {selectedTeam ? (
         <>
           <div className="confidence-container">
-            <div className="confidence-label">Confidence: {calculateConfidence(selectedTeam === 'attack' ? attackersIDs : defendersIDs, clickCount)}%</div>
+            <div className="confidence-label">Confidence: {calculateConfidence(selectedTeam === 'attack' ? attackersIDs : defendersIDs)}%</div>
             <div className="confidence-bar">
-              <div className="confidence-fill" style={{ width: `${calculateConfidence(selectedTeam === 'attack' ? attackersIDs : defendersIDs, clickCount)}%` }} />
+              <div className="confidence-fill" style={{ width: `${calculateConfidence(selectedTeam === 'attack' ? attackersIDs : defendersIDs)}%` }} />
             </div>
           </div>
           <div style={{ textAlign: 'center', margin: '20px' }}>

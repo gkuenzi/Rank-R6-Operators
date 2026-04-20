@@ -64,7 +64,7 @@ export function situationScale() {
     // ---- Attack ----
     {
         type: 'attack',
-        situation: 'Early entry frag, attempting to gain main advantage early',
+        situation: 'Early entry frag, attempting to gain man advantage early',
         general: 10,
         support: 0,
         fragging: 10,

@@ -36,7 +36,7 @@ body {
   align-items: center;
   flex-wrap: wrap;
   max-height: 100vh;
-  padding: 50px;
+  padding: 30px;
   box-sizing: border-box;
 }
 
@@ -130,4 +130,93 @@ button:focus {
 .opButtons {
   display: flex;
   gap: 70px;
+}
+
+.operatorCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.operatorButton {
+  height: 120px;
+  width: 120px;
+  /* border: 2px solid rgb(252, 78, 62); */
+  /* transition: transform 0.3s ease, border-color 0.3s ease; */
+  cursor: pointer;
+  background: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.operatorButton img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.operatorButton:hover {
+  /* border-color: rgb(255, 167, 159); */
+  transform: scale(1.05);
+}
+
+.operatorButton:focus {
+  outline: none;
+}
+
+.operatorName {
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+  text-align: center;
+  max-width: 120px;
+  word-break: break-word;
+}
+.operatorCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.operatorButton {
+  height: 120px;
+  width: 120px;
+  /* border: 2px solid rgb(252, 78, 62); */
+  /* transition: transform 0.3s ease, border-color 0.3s ease; */
+  cursor: pointer;
+  background: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.operatorButton img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.operatorButton:hover {
+  /* border-color: rgb(255, 167, 159); */
+  transform: scale(1.05);
+}
+
+.operatorButton:focus {
+  outline: none;
+}
+
+.operatorName {
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+  text-align: center;
+  max-width: 120px;
+  word-break: break-word;
 }
