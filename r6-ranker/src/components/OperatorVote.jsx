@@ -4,7 +4,6 @@
 import { useState } from 'react'
 import './OpVote.css'
 import r6Logo from '../assets/simple-r6-logo.png'
-import solidsnake from '../assets/operator-portraits/solidsnake.avif'
 import placeholderCover from '../assets/placeholder-cover-photo.jpg'
 import bankCover from '../assets/bank-cover-photo.avif'
 import borderCover from '../assets/border-cover-photo.avif'
@@ -63,6 +62,83 @@ const mapImages = {
   themepark: themeparkCover,
   villa: villaCover,
 };
+
+// map display overrides (slug used for URL)
+const mapDisplayOverrides = {
+  nighthaven: 'nighthavenlabs',
+  kafe: 'kafedostoyevsky',
+  emerald: 'emeraldplains',
+}
+
+// human-friendly display names for maps (used in UI)
+const mapDisplayNames = {
+  nighthaven: 'Nighthaven Labs',
+  kafe: 'Kafe Dostoyevsky',
+  emerald: 'Emerald Plains',
+}
+
+function capitalizeWords(str) {
+  return String(str || '')
+    .split(' ')
+    .filter(Boolean)
+    .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+    .join(' ');
+}
+
+// load all operator portraits as URLs (Vite import.meta.glob) - support multiple extensions
+const portraitModules = import.meta.glob('../assets/operator-portraits/*.{avif,png,jpg,jpeg,webp}', { eager: true, as: 'url' })
+const portraitMap = {}
+for (const p in portraitModules) {
+  const file = p.split('/').pop()
+  const key = file.replace(/\.[^.]+$/, '').toLowerCase()
+  portraitMap[key] = portraitModules[p]
+}
+
+function normalizeName(name) {
+  if (!name) return ''
+  // normalize, strip combining marks, remove non-alphanumerics, collapse spaces, lowercase
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    // transliterate common special letters
+    .replace(/ø/gi, 'o')
+    .replace(/æ/gi, 'ae')
+    .replace(/œ/gi, 'oe')
+    .replace(/ł/gi, 'l')
+    .replace(/ß/gi, 'ss')
+    .replace(/[^a-zA-Z0-9 ]/g, '')
+    .replace(/\s+/g, '')
+    .toLowerCase()
+}
+
+function getPortraitUrl(name) {
+  const key = normalizeName(name)
+  return portraitMap[key] || portraitMap['solidsnake'] || ''
+}
+
+function makeUrlName(name) {
+  if (!name) return ''
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ø/gi, 'o')
+    .replace(/[^a-zA-Z0-9 ]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .toLowerCase()
+}
+
+function getOperatorUrl(name) {
+  const slug = makeUrlName(name)
+  if (!slug) return '#'
+  return `https://www.ubisoft.com/en-us/game/rainbow-six/siege/game-info/operators/${encodeURIComponent(slug)}`
+}
+
+function getMapUrl(name) {
+  if (!name) return '#'
+  const slug = makeUrlName(name)
+  return `https://www.ubisoft.com/en-us/game/rainbow-six/siege/game-info/maps/${encodeURIComponent(slug)}`
+}
 
 function getRandomSite(map) {
   console.log("map", map)
@@ -211,7 +287,9 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
     if (isSite) {
       const randMap = Math.floor(Math.random() * maps.length);
       const selectedMap = maps[randMap];
-      setImageCaption(selectedMap.charAt(0).toUpperCase() + selectedMap.slice(1));
+      // show a human-friendly display name (replace hyphens with spaces and capitalize)
+      const displayName = mapDisplayNames[selectedMap] || capitalizeWords((selectedMap || '').replace(/-/g, ' '));
+      setImageCaption(displayName);
       setCurrentMapImage(mapImages[selectedMap]);
       const mapObj = mapDictionary.find(item => item.name === selectedMap);
       const site = getRandomSite(mapObj);
@@ -259,13 +337,27 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
       <div className="mainContainer">
         <div className="imageContainer">
           <img src={currentMapImage} alt="Chalet Basement Blueprint" className="mapImage" />
-          <h2>{imageCaption}</h2>
+          <h2>
+            {imageCaption}
+            {currentMapImage !== placeholderCover && imageCaption !== 'Situation' ? (
+              <a
+                className="operatorInfo mapInfo"
+                href={getMapUrl(imageCaption)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={e => { if (!imageCaption) e.preventDefault() }}
+                aria-label={`More info about ${imageCaption}`}
+              >
+                ?
+              </a>
+            ) : null}
+          </h2>
         </div>
         <div className="userContainer">
           <h1>{situation}</h1>
           <div className="opButtons">
             <div className="operatorCard">
-              <button className="operatorButton" onClick={() => {
+              <button className={`operatorButton ${!selectedTeam ? 'chooseTeam' : ''}`} onClick={() => {
                 if (selectedTeam === atk) {
                   vote(operatorA);
                 } else if (selectedTeam === def) {
@@ -276,12 +368,27 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
                   generateNewVote(atk);
                 }
               }}>
-                <img src={solidsnake} alt="Operator" />
+                <img
+                  src={selectedTeam ? getPortraitUrl(operatorA) : (portraitMap['attacker'] || portraitMap['ace'] || portraitMap['solidsnake'] || placeholderCover)}
+                  alt={operatorA || 'Operator'}
+                />
               </button>
-              <p className="operatorName">{operatorA}</p>
+              <p className="operatorName">
+                {operatorA}
+                <a
+                  className="operatorInfo"
+                  href={getOperatorUrl(operatorA)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={e => { if (!operatorA) e.preventDefault() }}
+                  aria-label={`More info about ${operatorA}`}
+                >
+                  ?
+                </a>
+              </p>
             </div>
             <div className="operatorCard">
-              <button className="operatorButton" onClick={() => {
+              <button className={`operatorButton ${!selectedTeam ? 'chooseTeam' : ''}`} onClick={() => {
                 console.log('Button B clicked, selectedTeam:', selectedTeam, 'defendersIDs.length:', defendersIDs.length);
                 if (selectedTeam === atk) {
                   vote(operatorB);
@@ -293,9 +400,24 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
                   generateNewVote(def);
                 }
               }}>
-                <img src={solidsnake} alt="Operator" />
+                <img
+                  src={selectedTeam ? getPortraitUrl(operatorB) : (portraitMap['defender'] || portraitMap['sentry'] || portraitMap['solidsnake'] || placeholderCover)}
+                  alt={operatorB || 'Operator'}
+                />
               </button>
-              <p className="operatorName">{operatorB}</p>
+              <p className="operatorName">
+                {operatorB}
+                <a
+                  className="operatorInfo"
+                  href={getOperatorUrl(operatorB)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={e => { if (!operatorB) e.preventDefault() }}
+                  aria-label={`More info about ${operatorB}`}
+                >
+                  ?
+                </a>
+              </p>
             </div>
           </div>
         </div>

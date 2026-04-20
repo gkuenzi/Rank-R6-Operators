@@ -142,25 +142,40 @@ button:focus {
 .operatorButton {
   height: 120px;
   width: 120px;
-  /* border: 2px solid rgb(252, 78, 62); */
-  /* transition: transform 0.3s ease, border-color 0.3s ease; */
+  border: 3px solid rgb(252, 78, 62);
+  border-radius: 5px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
   background: none;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .operatorButton img {
-  height: 100%;
-  width: 100%;
+  height: 105%;
+  width: 105%;
   object-fit: cover;
 }
 
 .operatorButton:hover {
-  /* border-color: rgb(255, 167, 159); */
+  border-color: rgb(255, 167, 159);
   transform: scale(1.05);
+}
+
+/* Larger visuals when choosing team */
+.operatorButton.chooseTeam {
+  height: 150px;
+  width: 150px;
+  border-width: 6px;
+}
+
+.operatorButton.chooseTeam img {
+  height: 170%;
+  width: 100%;
+  object-fit: cover;
 }
 
 .operatorButton:focus {
@@ -176,6 +191,32 @@ button:focus {
   max-width: 120px;
   word-break: break-word;
 }
+
+.operatorInfo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  width: 20px;
+  height: 20px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  border-radius: 50%;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.operatorInfo:hover {
+  background: rgba(255,255,255,0.14);
+}
+
+/* Map info button (same style as operator info but slightly larger) */
+.mapInfo {
+  width: 22px;
+  height: 22px;
+  font-size: 13px;
+}
 .operatorCard {
   display: flex;
   flex-direction: column;
@@ -183,33 +224,6 @@ button:focus {
   gap: 15px;
 }
 
-.operatorButton {
-  height: 120px;
-  width: 120px;
-  /* border: 2px solid rgb(252, 78, 62); */
-  /* transition: transform 0.3s ease, border-color 0.3s ease; */
-  cursor: pointer;
-  background: none;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.operatorButton img {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-}
-
-.operatorButton:hover {
-  /* border-color: rgb(255, 167, 159); */
-  transform: scale(1.05);
-}
-
-.operatorButton:focus {
-  outline: none;
-}
 
 .operatorName {
   color: #fff;

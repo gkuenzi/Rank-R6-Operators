@@ -1,6 +1,28 @@
 import { useState } from 'react';
 import './Results.css'
 
+function makeUrlName(name) {
+  if (!name) return '';
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ø/gi, 'o')
+    .replace(/æ/gi, 'ae')
+    .replace(/œ/gi, 'oe')
+    .replace(/ł/gi, 'l')
+    .replace(/ß/gi, 'ss')
+    .replace(/[^a-zA-Z0-9 ]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .toLowerCase();
+}
+
+function getOperatorUrl(name) {
+  const slug = makeUrlName(name);
+  if (!slug) return '#';
+  return `https://www.ubisoft.com/en-us/game/rainbow-six/siege/game-info/operators/${encodeURIComponent(slug)}`;
+}
+
 export default function Results({ attackersIDs, defendersIDs, selectedTeam, setView, setSelectedTeam }) {
   const [activeTab, setActiveTab] = useState('General');
 
@@ -43,7 +65,19 @@ export default function Results({ attackersIDs, defendersIDs, selectedTeam, setV
         <div className="scroll-box">
           {sortedOperators.map((op, index) => (
             <div key={op.name} className="operator-item">
-              <span>{index + 1}. {op.name}</span>
+              <span>
+                {index + 1}. {op.name}
+                <a
+                  className="operatorInfo"
+                  href={getOperatorUrl(op.name)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={e => { if (!op.name) e.preventDefault() }}
+                  aria-label={`More info about ${op.name}`}
+                >
+                  ?
+                </a>
+              </span>
               <span>{op.scores[getScoreKey(activeTab)]}</span>
             </div>
           ))}
