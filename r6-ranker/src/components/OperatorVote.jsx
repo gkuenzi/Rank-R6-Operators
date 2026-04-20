@@ -1,4 +1,7 @@
-import { useState, useEffect } from 'react'
+// The voting system doesn't accurately work yet
+
+
+import { useState } from 'react'
 import './OpVote.css'
 import r6Logo from '../assets/simple-r6-logo.png'
 import placeholderCover from '../assets/placeholder-cover-photo.jpg'
@@ -19,6 +22,7 @@ import outbackCover from '../assets/outback-cover-photo.avif'
 import skyscraperCover from '../assets/skyscraper-cover-photo.avif'
 import themeparkCover from '../assets/themepark-cover-photo.avif'
 import villaCover from '../assets/villa-cover-photo.avif'
+import { situationScale } from './situationScale'
 
 const maps = [
   'bank',
@@ -59,68 +63,6 @@ const mapImages = {
   villa: villaCover,
 };
 
-function generateIDs(operatorList, team) {
-  let operatorIDs = []
-  for (let i = 0; i < operatorList.length; i++) {
-    const id = {
-      name: operatorList[i],
-      team: team,
-      scores: team === 'attack' ? {
-        general: 1000, //Overall Score
-        //Support
-        support: 1000,  //help the team secure the victory or get a kill
-        entry: 1000,  //Soft and Hard Breaching
-        //Fragging
-        fragging: 1000, //Getting kills and gain map control
-        roam_clear: 1000, //taking out roamers
-        //Intel
-        intel: 1000,  //Gaining information
-        vert: 1000 //Vertical play potential
-      } : {
-        general: 1000, //Overall Score
-        //Support
-        support: 1000,  //help the team secure the victory or get a kill
-        sight_control: 1000,  //Holding down sight
-        //Fragging
-        fragging: 1000, //Getting kills and gain map control
-        roaming: 1000, //Get kills off sight and waste time
-        //Intel
-        intel: 1000,  //Gaining information
-        vert: 1000, //Vertical denial potential
-      }
-    }
-    operatorIDs.push(id)
-  }
-  return operatorIDs;
-}
-
-function parseMaps(lines, index = 0, maps = [], currentMap = null) {  //Resursive Function to find all map sites from Map_sites.txt
-  // base case
-  if (index >= lines.length) return maps;
-  const line = lines[index];
-  // ignore empty or space-starting lines
-  if (!line || line[0] === " ") {
-    return parseMaps(lines, index + 1, maps, currentMap);
-  }
-  // new map
-  if (line[0] === "#") {
-    const newMap = {
-      name: line.slice(1).trim(),
-      sites: []
-    };
-    maps.push(newMap);
-    return parseMaps(lines, index + 1, maps, newMap);
-  }
-
-  // otherwise it's a site
-  if (currentMap) {
-    currentMap.sites.push(line.trim());
-    // console.log(currentMap)
-  }
-  return parseMaps(lines, index + 1, maps, currentMap);
-}
-
-
 function getRandomSite(map) {
   console.log("map", map)
   if (!map || !map.sites || map.sites.length === 0) {
@@ -130,27 +72,33 @@ function getRandomSite(map) {
   return map.sites[randomIndex];
 }
 
+function getTieGroups(operators) {
+  const grouped = operators.reduce((acc, op) => {
+    const score = op.scores.general;
+    acc[score] = acc[score] || [];
+    acc[score].push(op);
+    return acc;
+  }, {});
 
-
-function opButton(operatorSide, setA, setB, setCaption, setMapImage, setSit, mapDict) {
-  const randomIndexA = Math.floor(Math.random() * operatorSide.length)
-  setA(operatorSide[randomIndexA])
-
-  while (true) {
-    const randomIndexB = Math.floor(Math.random() * operatorSide.length)
-    if (randomIndexB !== randomIndexA) {
-      setB(operatorSide[randomIndexB])
-      break;
-    }
-  }
-  const randMap = Math.floor(Math.random() * maps.length)
-  const selectedMap = maps[randMap]
-  setCaption(selectedMap.charAt(0).toUpperCase() + selectedMap.slice(1))
-  setMapImage(mapImages[selectedMap])
-  setSit(getRandomSite(mapDict.find(item => item.name === selectedMap)))
+  return Object.values(grouped).filter(group => group.length > 1);
 }
 
-export default function operatorVote({ attackersIDs, defendersIDs, mapDictionary, selectedTeam, setSelectedTeam, view, setView }) {
+function calculateConfidence(operators, clicks) {
+  if (!operators || operators.length === 0) return 0;
+
+  const scores = operators.map(op => op.scores.general);
+  const max = Math.max(...scores);
+  const min = Math.min(...scores);
+  const spread = max - min;
+  const spreadScore = Math.min(50, (spread / 20) * 50);
+  const clickScore = Math.min(40, clicks * 3);
+  const tieCount = getTieGroups(operators).length;
+  const tiePenalty = Math.min(20, tieCount * 5);
+
+  return Math.max(0, Math.min(100, Math.round(spreadScore + clickScore - tiePenalty)));
+}
+
+export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary, selectedTeam, setSelectedTeam, setView, setAttackersIDs, setDefendersIDs }) {
   const [operatorA, setOperatorA] = useState('Attack')
   const [operatorB, setOperatorB] = useState('Defense')
   const attackers = attackersIDs.map(op => op.name)
@@ -158,8 +106,96 @@ export default function operatorVote({ attackersIDs, defendersIDs, mapDictionary
   const [situation, setSituation] = useState('Choose your Team')
   const [imageCaption, setImageCaption] = useState('“Tactical combat at its finest.”')
   const [currentMapImage, setCurrentMapImage] = useState(placeholderCover)
+  const [currentSituation, setCurrentSituation] = useState(null)
+  const [clickCount, setClickCount] = useState(0)
+
+  const scale = situationScale();
 
   const atk = 'attack'; const def = 'defense';
+
+  const applyDelta = (op, delta, isWinner) => {
+    if (!op || !op.scores) return;
+    const isAttack = selectedTeam === 'attack';
+    for (const key in delta) {
+      if (delta[key] !== 0) {
+        let actualKey = key;
+        if (key === 'roam') {
+          actualKey = isAttack ? 'roam_clear' : 'roaming';
+        } else if (key === 'entry' && !isAttack) {
+          continue;
+        }
+        if (op.scores[actualKey] !== undefined) {
+          const value = delta[key];
+          if (isWinner) {
+            op.scores[actualKey] += value;
+          } else {
+            op.scores[actualKey] -= Math.ceil(value / 5);
+          }
+        }
+      }
+    }
+  };
+
+  const generateNewVote = (team) => {
+    const operators = team === 'attack' ? attackers : defenders;
+    if (!operators || operators.length < 2) return;
+
+    const tiedGroups = getTieGroups(team === 'attack' ? attackersIDs : defendersIDs);
+    let firstOperator;
+    let secondOperator;
+
+    if (tiedGroups.length > 0) {
+      const tieGroup = tiedGroups[Math.floor(Math.random() * tiedGroups.length)];
+      firstOperator = tieGroup[0].name;
+      secondOperator = tieGroup[1].name;
+    } else {
+      const randomIndexA = Math.floor(Math.random() * operators.length);
+      firstOperator = operators[randomIndexA];
+      let randomIndexB;
+      do {
+        randomIndexB = Math.floor(Math.random() * operators.length);
+      } while (randomIndexB === randomIndexA);
+      secondOperator = operators[randomIndexB];
+    }
+
+    setOperatorA(firstOperator);
+    setOperatorB(secondOperator);
+
+    const isSite = Math.random() < 0.5;
+    if (isSite) {
+      const randMap = Math.floor(Math.random() * maps.length);
+      const selectedMap = maps[randMap];
+      setImageCaption(selectedMap.charAt(0).toUpperCase() + selectedMap.slice(1));
+      setCurrentMapImage(mapImages[selectedMap]);
+      const mapObj = mapDictionary.find(item => item.name === selectedMap);
+      const site = getRandomSite(mapObj);
+      setSituation(site);
+      setCurrentSituation({ general: 10, support: 0, fragging: 0, intel: 0, entry: 0, roam: 0, vert: 0 });
+    } else {
+      const relevantSituations = scale.filter(s => s.type === 'all' || s.type === team);
+      const randSit = Math.floor(Math.random() * relevantSituations.length);
+      const sit = relevantSituations[randSit];
+      setSituation(sit.situation);
+      setImageCaption('Situation');
+      setCurrentMapImage(placeholderCover);
+      setCurrentSituation(sit);
+    }
+  };
+
+  const vote = (chosenName) => {
+    const isAttack = selectedTeam === 'attack';
+    const ops = isAttack ? attackersIDs : defendersIDs;
+    const setOps = isAttack ? setAttackersIDs : setDefendersIDs;
+    const chosen = ops.find(o => o.name === chosenName);
+    const otherName = chosenName === operatorA ? operatorB : operatorA;
+    const other = ops.find(o => o.name === otherName);
+    if (!chosen || !other || !currentSituation) return;
+    applyDelta(chosen, currentSituation, true);
+    applyDelta(other, currentSituation, false);
+    setOps([...ops]);
+    setClickCount(prev => prev + 1);
+    generateNewVote(selectedTeam);
+  };
 
   return (
     <div className="operatorVote">
@@ -176,22 +212,28 @@ export default function operatorVote({ attackersIDs, defendersIDs, mapDictionary
           <h1>{situation}</h1>
           <div className="opButtons">
             <button onClick={() => {
-              if (selectedTeam === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
-              else if (selectedTeam === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary )
-              else {
-                setSelectedTeam(atk)
-                opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
+              if (selectedTeam === atk) {
+                vote(operatorA);
+              } else if (selectedTeam === def) {
+                vote(operatorA);
+              } else {
+                if (attackersIDs.length === 0) return;
+                setSelectedTeam(atk);
+                generateNewVote(atk);
               }
-
             }}
             >{operatorA}
             </button>
             <button onClick={() => {
-              if (selectedTeam === atk) opButton(attackers, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
-              else if (selectedTeam === def) opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
-              else {
-                setSelectedTeam(def)
-                opButton(defenders, setOperatorA, setOperatorB, setImageCaption, setCurrentMapImage, setSituation, mapDictionary)
+              console.log('Button B clicked, selectedTeam:', selectedTeam, 'defendersIDs.length:', defendersIDs.length);
+              if (selectedTeam === atk) {
+                vote(operatorB);
+              } else if (selectedTeam === def) {
+                vote(operatorB);
+              } else {
+                if (defendersIDs.length === 0) return;
+                setSelectedTeam(def);
+                generateNewVote(def);
               }
             }}
             >{operatorB}
@@ -200,9 +242,17 @@ export default function operatorVote({ attackersIDs, defendersIDs, mapDictionary
         </div>
       </div>
       {selectedTeam ? (
-        <div style={{ textAlign: 'center', margin: '20px' }}>
-          <button className="nav-button" onClick={() => setView('results')}>See Results</button>
-        </div>
+        <>
+          <div className="confidence-container">
+            <div className="confidence-label">Confidence: {calculateConfidence(selectedTeam === 'attack' ? attackersIDs : defendersIDs, clickCount)}%</div>
+            <div className="confidence-bar">
+              <div className="confidence-fill" style={{ width: `${calculateConfidence(selectedTeam === 'attack' ? attackersIDs : defendersIDs, clickCount)}%` }} />
+            </div>
+          </div>
+          <div style={{ textAlign: 'center', margin: '20px' }}>
+            <button className="nav-button" onClick={() => setView('results')}>See Results</button>
+          </div>
+        </>
       ) : null}
     </div>
   )

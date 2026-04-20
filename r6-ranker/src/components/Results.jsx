@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './Results.css'
 
-export default function Results({ attackersIDs, defendersIDs, selectedTeam, view, setView, setSelectedTeam }) {
+export default function Results({ attackersIDs, defendersIDs, selectedTeam, setView, setSelectedTeam }) {
   const [activeTab, setActiveTab] = useState('General');
 
   const operators = selectedTeam === 'attack' ? attackersIDs : selectedTeam === 'defense' ? defendersIDs : [];
