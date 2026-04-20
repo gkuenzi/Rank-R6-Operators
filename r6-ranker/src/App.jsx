@@ -44,27 +44,7 @@ function App() {
   const [defendersIDs, setDefendersIDs] = useState([])
   const [mapDictionary, setMapDictionary] = useState([])
   const [selectedTeam, setSelectedTeam] = useState(null); // 'attack' or 'defense' or null
-
-  useEffect(() => {
-    const loadData = async () => {
-      const attackersResponse = await fetch('/Attackers.txt');
-      const attackersText = await attackersResponse.text();
-      const attackersList = attackersText.split('\n').filter(line => line.trim() !== '');
-      setAttackersIDs(generateIDs(attackersList, 'attack'));
-
-      const defendersResponse = await fetch('/Defenders.txt');
-      const defendersText = await defendersResponse.text();
-      const defendersList = defendersText.split('\n').filter(line => line.trim() !== '');
-      setDefendersIDs(generateIDs(defendersList, 'defense'));
-
-      const mapResponse = await fetch('/Map_sites.txt');
-      const mapText = await mapResponse.text();
-      const lines = mapText.split("\n");
-      setMapDictionary(parseMaps(lines));
-    };
-
-    loadData();
-  }, []);
+  const [loading, setLoading] = useState(true);
 
   function parseMaps(lines, index = 0, maps = [], currentMap = null) {
     if (index >= lines.length) return maps;
@@ -86,9 +66,34 @@ function App() {
     return parseMaps(lines, index + 1, maps, currentMap);
   }
 
+  useEffect(() => {
+    const loadData = async () => {
+      const attackersResponse = await fetch('/Attackers.txt');
+      const attackersText = await attackersResponse.text();
+      const attackersList = attackersText.split('\n').filter(line => line.trim() !== '');
+      setAttackersIDs(generateIDs(attackersList, 'attack'));
+
+      const defendersResponse = await fetch('/Defenders.txt');
+      const defendersText = await defendersResponse.text();
+      const defendersList = defendersText.split('\n').filter(line => line.trim() !== '');
+      setDefendersIDs(generateIDs(defendersList, 'defense'));
+
+      const mapResponse = await fetch('/Map_sites.txt');
+      const mapText = await mapResponse.text();
+      const lines = mapText.split("\n");
+      setMapDictionary(parseMaps(lines));
+    };
+
+    loadData().then(() => setLoading(false));
+  }, []);
+
   return (
     <div>
-      {view === 'vote' ? <OperatorVote attackersIDs={attackersIDs} defendersIDs={defendersIDs} mapDictionary={mapDictionary} selectedTeam={selectedTeam} setSelectedTeam={setSelectedTeam} view={view} setView={setView} /> : <Results attackersIDs={attackersIDs} defendersIDs={defendersIDs} selectedTeam={selectedTeam} view={view} setView={setView} setSelectedTeam={setSelectedTeam} />}
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <h1>Loading Operators...</h1>
+        </div>
+      ) : view === 'vote' ? <OperatorVote attackersIDs={attackersIDs} defendersIDs={defendersIDs} mapDictionary={mapDictionary} selectedTeam={selectedTeam} setSelectedTeam={setSelectedTeam} view={view} setView={setView} setAttackersIDs={setAttackersIDs} setDefendersIDs={setDefendersIDs} /> : <Results attackersIDs={attackersIDs} defendersIDs={defendersIDs} selectedTeam={selectedTeam} view={view} setView={setView} setSelectedTeam={setSelectedTeam} />}
     </div>
   )
 }
