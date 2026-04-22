@@ -137,6 +137,7 @@ button:focus {
   flex-direction: column;
   align-items: center;
   gap: 15px;
+  min-width: 140px;
 }
 
 .operatorButton {
@@ -188,8 +189,14 @@ button:focus {
   font-weight: bold;
   margin: 0;
   text-align: center;
-  max-width: 120px;
-  word-break: break-word;
+  max-width: 220px;
+}
+
+.operatorNameText {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 18px;
+  vertical-align: middle;
 }
 
 .operatorInfo {

@@ -25,6 +25,7 @@ function getOperatorUrl(name) {
 
 export default function Results({ attackersIDs, defendersIDs, selectedTeam, setView, setSelectedTeam }) {
   const [activeTab, setActiveTab] = useState('General');
+  const [sortMode, setSortMode] = useState('scoring'); // 'total' or 'scoring'
 
   const operators = selectedTeam === 'attack' ? attackersIDs : selectedTeam === 'defense' ? defendersIDs : [];
 
@@ -38,7 +39,32 @@ export default function Results({ attackersIDs, defendersIDs, selectedTeam, setV
     }
   };
 
-  const sortedOperators = [...operators].sort((a, b) => b.scores[getScoreKey(activeTab)] - a.scores[getScoreKey(activeTab)]);
+  
+
+  // For normalization: initial baseline from generator is 1000, and max per-vote delta is 10
+  const BASELINE = 1000;
+  const MAX_PER_VOTE = 10;
+
+  // compute a ratio helper for each operator for the active tab
+  const computeRatio = (op) => {
+    const key = getScoreKey(activeTab);
+    const totalPoints = op.scores[key] || 0;
+    const shown = op.shown || 0;
+    const possible = BASELINE + (shown * MAX_PER_VOTE);
+    if (possible <= 0) return 0;
+    const raw = totalPoints / possible;
+    return Math.min(1, raw);
+  };
+
+  const sortedOperators = [...operators].sort((a, b) => {
+    if (sortMode === 'total') {
+      return (b.scores[getScoreKey(activeTab)] || 0) - (a.scores[getScoreKey(activeTab)] || 0);
+    }
+    // scoring
+    return computeRatio(b) - computeRatio(a);
+  });
+
+  
 
   if (!selectedTeam) {
     return (
@@ -62,6 +88,10 @@ export default function Results({ attackersIDs, defendersIDs, selectedTeam, setV
             </button>
           ))}
         </div>
+        <div className="sort-toggle">
+          <label className={`sort-btn ${sortMode === 'total' ? 'active' : ''}`} onClick={() => setSortMode('total')}>Total Points</label>
+          <label className={`sort-btn ${sortMode === 'scoring' ? 'active' : ''}`} onClick={() => setSortMode('scoring')}>Operator Scoring</label>
+        </div>
         <div className="scroll-box">
           {sortedOperators.map((op, index) => (
             <div key={op.name} className="operator-item">
@@ -78,7 +108,19 @@ export default function Results({ attackersIDs, defendersIDs, selectedTeam, setV
                   ?
                 </a>
               </span>
-              <span>{op.scores[getScoreKey(activeTab)]}</span>
+              <span>
+                {(() => {
+                  const key = getScoreKey(activeTab);
+                  const totalPoints = op.scores[key] || 0;
+                  const shown = op.shown || 0;
+                  const possible = BASELINE + (shown * MAX_PER_VOTE);
+                  const ratio = possible > 0 ? Math.min(1, totalPoints / possible) : 0;
+                  if (sortMode === 'total') {
+                    return String(Math.round(totalPoints));
+                  }
+                  return ratio.toFixed(3);
+                })()}
+              </span>
             </div>
           ))}
         </div>

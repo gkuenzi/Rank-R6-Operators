@@ -6,7 +6,8 @@
   background: transparent;
   font-family: 'OCR A Std', 'Lucida Console', Monaco, monospace;
   margin: 0 auto; /* center horizontally */
-  border: 2px solid rgb(252, 78, 62);
+  background-color:rgba(0, 0, 0, 0.8);
+  border: 3px solid rgb(252, 78, 62);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -16,6 +17,29 @@
   justify-content: space-around;
   background-color: rgba(0, 0, 0, 0.8);
   border-bottom: 2px solid rgb(252, 78, 62);
+}
+
+.sort-toggle {
+  display: flex;
+  background-color:rgba(0, 0, 0, 0.8);
+  gap: 8px;
+  justify-content: center;
+  margin: 10px 0 10px 0;
+}
+
+.sort-btn {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.sort-btn.active {
+  background: linear-gradient(90deg, rgb(252,78,62), rgb(255,167,159));
+  color: #222;
+  border-color: transparent;
 }
 
 .tab {
@@ -47,7 +71,7 @@
   overflow-y: auto;
   background-color: rgba(0, 0, 0, 0.7);
   border: 2px solid rgb(252, 78, 62);
-  border-top: none;
+  border-top: 2px solid rgb(252, 78, 62);
   padding: 20px;
   color: white;
 }

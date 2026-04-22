@@ -9,7 +9,7 @@ function generateIDs(operatorList, team) {
     const id = {
       name: operatorList[i],
       team: team,
-      scores: team === 'attack' ? {
+        scores: team === 'attack' ? {
         general: 1000, //Overall Score
         //Support
         support: 1000,  //help the team secure the victory or get a kill
@@ -32,6 +32,9 @@ function generateIDs(operatorList, team) {
         intel: 1000,  //Gaining information
         vert: 1000, //Vertical denial potential
       }
+      ,
+        // track how many times this operator was shown during voting
+        shown: 0
     }
     operatorIDs.push(id)
   }

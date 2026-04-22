@@ -1,7 +1,7 @@
 // The voting system doesn't accurately work yet
 
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './OpVote.css'
 import r6Logo from '../assets/simple-r6-logo.png'
 import placeholderCover from '../assets/placeholder-cover-photo.jpg'
@@ -141,7 +141,7 @@ function getMapUrl(name) {
 }
 
 function getRandomSite(map) {
-  console.log("map", map)
+  // console.log("map", map)
   if (!map || !map.sites || map.sites.length === 0) {
     return 'ERROR'; // or throw an error if you prefer
   }
@@ -174,6 +174,8 @@ function calculateConfidence(operators) {
 export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary, selectedTeam, setSelectedTeam, setView, setAttackersIDs, setDefendersIDs }) {
   const [operatorA, setOperatorA] = useState('Attack')
   const [operatorB, setOperatorB] = useState('Defense')
+  const nameARef = useRef(null)
+  const nameBRef = useRef(null)
   const attackers = attackersIDs.map(op => op.name)
   const defenders = defendersIDs.map(op => op.name)
   const [situation, setSituation] = useState('Choose your Team')
@@ -185,6 +187,18 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
   const scale = situationScale();
 
   const atk = 'attack'; const def = 'defense';
+
+
+
+  // Add slight randomness to the delta values: ±1 to ±2 points (window) for variability
+  const randomizedDelta = (val) => {
+    if (!val || typeof val !== 'number') return val;
+    // choose magnitude 1 or 2
+    const mag = 1 + Math.floor(Math.random() * 2); // 1 or 2
+    const sign = Math.random() < 0.5 ? -1 : 1;
+    const randomized = val + (sign * mag);
+    return Math.max(0, Math.round(randomized));
+  };
 
   const applyDelta = (op, delta, isWinner) => {
     if (!op || !op.scores) return;
@@ -198,7 +212,8 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
           continue;
         }
         if (op.scores[actualKey] !== undefined) {
-          const value = delta[key];
+          const rawValue = delta[key];
+          const value = randomizedDelta(rawValue);
           if (isWinner) {
             op.scores[actualKey] += value;
           } else {
@@ -208,6 +223,40 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
       }
     }
   };
+
+  // Shrink-to-fit logic for operator names: reduce font-size until text fits its available space
+  const fitName = (textEl) => {
+    if (!textEl) return;
+    const parent = textEl.parentElement;
+    if (!parent) return;
+    const icon = parent.querySelector('.operatorInfo');
+    const iconStyle = icon ? getComputedStyle(icon) : null;
+    const iconWidth = icon ? icon.offsetWidth + (parseFloat(iconStyle.marginLeft || 0)) : 0;
+    const available = parent.clientWidth - iconWidth - 4; // small padding
+
+    const maxSize = 20;
+    const minSize = 12; // keep names readable
+    let size = maxSize;
+    textEl.style.whiteSpace = 'nowrap';
+    textEl.style.display = 'inline-block';
+    textEl.style.fontSize = `${size}px`;
+
+    // If it already fits, nothing to do
+    while (textEl.scrollWidth > available && size > minSize) {
+      size -= 1;
+      textEl.style.fontSize = `${size}px`;
+    }
+  };
+
+  useEffect(() => {
+    const run = () => {
+      fitName(nameARef.current);
+      fitName(nameBRef.current);
+    };
+    run();
+    window.addEventListener('resize', run);
+    return () => window.removeEventListener('resize', run);
+  }, [operatorA, operatorB, selectedTeam]);
 
   const generateNewVote = (team) => {
     const operators = team === 'attack' ? attackers : defenders;
@@ -282,6 +331,16 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
 
     setOperatorA(firstOperator);
     setOperatorB(secondOperator);
+
+    // increment 'shown' counter for both operators so Results can compute possible totals
+    const incrementShown = (teamArr, setTeamArr, names) => {
+      setTeamArr(teamArr.map(op => names.includes(op.name) ? { ...op, shown: (op.shown || 0) + 1 } : op));
+    };
+    if (team === 'attack') {
+      incrementShown(attackersIDs, setAttackersIDs, [firstOperator, secondOperator]);
+    } else {
+      incrementShown(defendersIDs, setDefendersIDs, [firstOperator, secondOperator]);
+    }
 
     const isSite = Math.random() < 0.5;
     if (isSite) {
@@ -374,7 +433,7 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
                 />
               </button>
               <p className="operatorName">
-                {operatorA}
+                <span ref={nameARef} className="operatorNameText">{operatorA}</span>
                 <a
                   className="operatorInfo"
                   href={getOperatorUrl(operatorA)}
@@ -389,7 +448,7 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
             </div>
             <div className="operatorCard">
               <button className={`operatorButton ${!selectedTeam ? 'chooseTeam' : ''}`} onClick={() => {
-                console.log('Button B clicked, selectedTeam:', selectedTeam, 'defendersIDs.length:', defendersIDs.length);
+                // console.log('Button B clicked, selectedTeam:', selectedTeam, 'defendersIDs.length:', defendersIDs.length);
                 if (selectedTeam === atk) {
                   vote(operatorB);
                 } else if (selectedTeam === def) {
@@ -406,7 +465,7 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
                 />
               </button>
               <p className="operatorName">
-                {operatorB}
+                <span ref={nameBRef} className="operatorNameText">{operatorB}</span>
                 <a
                   className="operatorInfo"
                   href={getOperatorUrl(operatorB)}
