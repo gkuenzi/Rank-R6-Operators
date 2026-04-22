@@ -39,7 +39,7 @@ export default function Results({ attackersIDs, defendersIDs, selectedTeam, setV
     }
   };
 
-  
+
 
   // For normalization: initial baseline from generator is 1000, and max per-vote delta is 10
   const BASELINE = 1000;
@@ -64,7 +64,7 @@ export default function Results({ attackersIDs, defendersIDs, selectedTeam, setV
     return computeRatio(b) - computeRatio(a);
   });
 
-  
+
 
   if (!selectedTeam) {
     return (
@@ -89,8 +89,23 @@ export default function Results({ attackersIDs, defendersIDs, selectedTeam, setV
           ))}
         </div>
         <div className="sort-toggle">
-          <label className={`sort-btn ${sortMode === 'total' ? 'active' : ''}`} onClick={() => setSortMode('total')}>Total Points</label>
-          <label className={`sort-btn ${sortMode === 'scoring' ? 'active' : ''}`} onClick={() => setSortMode('scoring')}>Operator Scoring</label>
+          <h2 className="sortByText">
+            Sort By:
+          </h2>
+          <label
+            title="Show raw total points the operator has in the selected category"
+            className={`sort-btn ${sortMode === 'total' ? 'active' : ''}`}
+            onClick={() => setSortMode('total')}
+          >
+            Total Points
+          </label>
+          <label
+            title="Show normalized operator scoring (points ÷ possible points)"
+            className={`sort-btn ${sortMode === 'scoring' ? 'active' : ''}`}
+            onClick={() => setSortMode('scoring')}
+          >
+            Operator Scoring
+          </label>
         </div>
         <div className="scroll-box">
           {sortedOperators.map((op, index) => (
@@ -126,7 +141,13 @@ export default function Results({ attackersIDs, defendersIDs, selectedTeam, setV
         </div>
       </div>
       <div style={{ textAlign: 'center', margin: '20px' }}>
-        <button className="nav-button" onClick={() => { setView('vote'); setSelectedTeam(null); }}>Return to Vote</button>
+        <button
+          className="nav-button"
+          title="Your voting information will be saved until the page is refreshed"
+          onClick={() => { setView('vote'); setSelectedTeam(null); }}
+        >
+          Return to Vote
+        </button>
       </div>
     </>
   );

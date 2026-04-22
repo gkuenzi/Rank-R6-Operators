@@ -490,7 +490,13 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
             </div>
           </div>
           <div style={{ textAlign: 'center', margin: '20px' }}>
-            <button className="nav-button" onClick={() => setView('results')}>See Results</button>
+            <button
+              className="nav-button"
+              title="Your voting information will be saved until the page is refreshed"
+              onClick={() => setView('results')}
+            >
+              See Results
+            </button>
           </div>
         </>
       ) : null}
