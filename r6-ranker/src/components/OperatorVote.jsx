@@ -163,10 +163,14 @@ function getTieGroups(operators) {
 function calculateConfidence(operators) {
   if (!operators || operators.length === 0) return 0;
 
+  // If no operator has been shown yet, treat confidence as 0%
+  const totalShown = operators.reduce((sum, op) => sum + (op.shown || 0), 0);
+  if (totalShown === 0) return 0;
+
   // Count unique general scores - this is the only indicator of confidence
   const uniqueScores = new Set(operators.map(op => op.scores.general)).size;
   const uniquenessRatio = uniqueScores / operators.length;
-  
+
   // Scale to 0-100% based purely on uniqueness of general scores
   return Math.round(uniquenessRatio * 100);
 }
@@ -387,6 +391,24 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
     generateNewVote(selectedTeam);
   };
 
+  // compute current confidence once (0-100)
+  const currentOperators = selectedTeam === 'attack' ? attackersIDs : selectedTeam === 'defense' ? defendersIDs : null;
+  const confidence = currentOperators ? calculateConfidence(currentOperators) : 0;
+
+  // Reset all operator scores and shown counters to zero
+  const resetAllVotes = () => {
+    const zeroScores = (scores) => {
+      if (!scores) {
+        return { general: 0, support: 0, fragging: 0, intel: 0, entry: 0, roam: 0, vert: 0, roam_clear: 0, roaming: 0 };
+      }
+      return Object.keys(scores).reduce((acc, k) => { acc[k] = 0; return acc }, {});
+    };
+
+    setAttackersIDs(attackersIDs.map(op => ({ ...op, scores: zeroScores(op.scores), shown: 0 })));
+    setDefendersIDs(defendersIDs.map(op => ({ ...op, scores: zeroScores(op.scores), shown: 0 })));
+    setRecentPairs([]);
+  };
+
   return (
     <div className="operatorVote">
       <div className="titleConnector">
@@ -484,19 +506,29 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
       {selectedTeam ? (
         <>
           <div className="confidence-container">
-            <div className="confidence-label">Confidence: {calculateConfidence(selectedTeam === 'attack' ? attackersIDs : defendersIDs)}%</div>
+            <div className="confidence-label">Confidence: {confidence}%</div>
             <div className="confidence-bar">
-              <div className="confidence-fill" style={{ width: `${calculateConfidence(selectedTeam === 'attack' ? attackersIDs : defendersIDs)}%` }} />
+              <div className="confidence-fill" style={{ width: `${confidence}%` }} />
             </div>
           </div>
           <div style={{ textAlign: 'center', margin: '20px' }}>
             <button
-              className="nav-button"
-              title="Your voting information will be saved until the page is refreshed"
-              onClick={() => setView('results')}
+              className="nav-button clear-button"
+              title="Clear all votes (reset operator scores)"
+              onClick={resetAllVotes}
             >
-              See Results
+              Clear votes
             </button>
+            {confidence >= 50 ? (
+              <button
+                className="nav-button"
+                title="Your voting information will be saved until the page is refreshed"
+                onClick={() => setView('results')}
+                style={{ marginLeft: '8px' }}
+              >
+                See Results
+              </button>
+            ) : null}
           </div>
         </>
       ) : null}
