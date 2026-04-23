@@ -94,6 +94,15 @@ button:focus {
   outline: none;
 }
 
+.neither-button {
+  background-color: transparent;
+  border: 2px solid rgb(252, 78, 62);
+  height: 40px;
+  width: 120px;
+  font-size: 14px;
+  margin-top: 20px;
+}
+
 .confidence-container {
   max-width: 450px;
   margin: 20px auto 0;

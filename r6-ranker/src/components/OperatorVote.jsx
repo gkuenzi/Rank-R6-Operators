@@ -187,6 +187,8 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
   const [currentMapImage, setCurrentMapImage] = useState(placeholderCover)
   const [currentSituation, setCurrentSituation] = useState(null)
   const [recentPairs, setRecentPairs] = useState([])
+  const [votesCast, setVotesCast] = useState(false);
+  const [isSitePrompt, setIsSitePrompt] = useState(false);
 
   const scale = situationScale();
 
@@ -358,6 +360,7 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
       const site = getRandomSite(mapObj);
       setSituation(site);
       setCurrentSituation({ general: 10, support: 0, fragging: 0, intel: 0, entry: 0, roam: 0, vert: 0 });
+      setIsSitePrompt(true);
     } else {
       const relevantSituations = scale.filter(s => s.type === 'all' || s.type === team);
       const randSit = Math.floor(Math.random() * relevantSituations.length);
@@ -366,6 +369,7 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
       setImageCaption('Situation');
       setCurrentMapImage(placeholderCover);
       setCurrentSituation(sit);
+      setIsSitePrompt(false);
     }
   };
 
@@ -380,6 +384,7 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
     applyDelta(chosen, currentSituation, true);
     applyDelta(other, currentSituation, false);
     setOps([...ops]);
+    setVotesCast(true);
     
     // Add current pair to recent pairs to avoid immediate repetition
     const currentPair = [operatorA, operatorB].sort().join('-');
@@ -391,9 +396,26 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
     generateNewVote(selectedTeam);
   };
 
+  // 'Neither' vote: both operators lose points (only for situation prompts)
+  const neitherVote = () => {
+    if (!currentSituation || isSitePrompt || !selectedTeam) return;
+    const isAttack = selectedTeam === 'attack';
+    const ops = isAttack ? attackersIDs : defendersIDs;
+    const setOps = isAttack ? setAttackersIDs : setDefendersIDs;
+    const opA = ops.find(o => o.name === operatorA);
+    const opB = ops.find(o => o.name === operatorB);
+    if (!opA || !opB) return;
+    applyDelta(opA, currentSituation, false);
+    applyDelta(opB, currentSituation, false);
+    setOps([...ops]);
+    setVotesCast(true);
+    generateNewVote(selectedTeam);
+  };
+
   // compute current confidence once (0-100)
   const currentOperators = selectedTeam === 'attack' ? attackersIDs : selectedTeam === 'defense' ? defendersIDs : null;
-  const confidence = currentOperators ? calculateConfidence(currentOperators) : 0;
+  const computedConfidence = currentOperators ? calculateConfidence(currentOperators) : 0;
+  const confidence = votesCast ? computedConfidence : 0;
 
   // Reset all operator scores and shown counters to zero
   const resetAllVotes = () => {
@@ -407,6 +429,8 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
     setAttackersIDs(attackersIDs.map(op => ({ ...op, scores: zeroScores(op.scores), shown: 0 })));
     setDefendersIDs(defendersIDs.map(op => ({ ...op, scores: zeroScores(op.scores), shown: 0 })));
     setRecentPairs([]);
+    setVotesCast(false);
+    setIsSitePrompt(false);
   };
 
   return (
@@ -501,13 +525,26 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
               </p>
             </div>
           </div>
+          {!isSitePrompt && selectedTeam ? (
+            <div>
+              <button
+                className="neither-button"
+                title="Neither — penalize both operators"
+                onClick={neitherVote}
+              >
+                Neither
+              </button>
+            </div>
+          ) : null}
         </div>
       </div>
       {selectedTeam ? (
         <>
           <div className="confidence-container">
             <div className="confidence-label">Confidence: {confidence}%</div>
-            <div className="confidence-bar">
+            <div 
+            className="confidence-bar"
+            title="Results won't be available until >50% confidence level; Recomended: >80%">
               <div className="confidence-fill" style={{ width: `${confidence}%` }} />
             </div>
           </div>

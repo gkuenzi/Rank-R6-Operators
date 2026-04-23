@@ -132,7 +132,7 @@ export function situationScale() {
     },
     {
         type: 'defense',
-        situation: 'Flexible; Can be both and anchor and roamer',
+        situation: 'Flexible; Can be both an anchor and roamer',
         general: 10,
         support: 5,
         fragging: 5,
