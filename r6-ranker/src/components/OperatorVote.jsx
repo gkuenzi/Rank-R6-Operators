@@ -421,7 +421,7 @@ export default function OperatorVote({ attackersIDs, defendersIDs, mapDictionary
   const resetAllVotes = () => {
     const zeroScores = (scores) => {
       if (!scores) {
-        return { general: 0, support: 0, fragging: 0, intel: 0, entry: 0, roam: 0, vert: 0, roam_clear: 0, roaming: 0 };
+        return { general: 1000, support: 1000, fragging: 1000, intel: 1000, entry: 1000, roam: 1000, vert: 1000, roam_clear: 1000, roaming: 1000 };
       }
       return Object.keys(scores).reduce((acc, k) => { acc[k] = 0; return acc }, {});
     };
